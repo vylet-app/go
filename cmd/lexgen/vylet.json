@@ -1,14 +1,14 @@
 [
   {
-    "package": "eloge",
-    "prefix": "app.eloge",
-    "outdir": "gen/vylet",
-    "import": "github.com/vylet-app/go/gen/vylet"
+    "package": "vylet",
+    "prefix": "app.vylet",
+    "outdir": "api/vylet",
+    "import": "github.com/vylet-app/go/api/vylet"
   },
   {
     "package": "atproto",
     "prefix": "com.atproto",
-    "outdir": "gen/atproto",
+    "outdir": "api/atproto",
     "import": "github.com/bluesky-social/indigo/api/atproto"
   }
 ]
