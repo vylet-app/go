@@ -32,14 +32,9 @@ func main() {
 				Value:   cli.NewStringSlice("localhost:9092"),
 			},
 			&cli.StringFlag{
-				Name:     "consumer-group",
-				EnvVars:  []string{"KAFKA_FIREHOSE_CONSUMER_GROUP"},
-				Required: true,
-			},
-			&cli.StringFlag{
 				Name:    "output-topic",
 				EnvVars: []string{"KAFKA_FIREHOSE_OUTPUT_TOPIC"},
-				Value:   "firehose-records-prod",
+				Value:   "firehose-events-prod",
 			},
 		},
 		Action: run,
@@ -56,10 +51,13 @@ func run(cmd *cli.Context) error {
 	logger := telemetry.StartLogger(cmd)
 	telemetry.StartMetrics(cmd)
 
-	kf, err := kafkafirehose.New(&kafkafirehose.Args{
+	kf, err := kafkafirehose.New(ctx, &kafkafirehose.Args{
 		Logger: logger,
 
 		DesiredCollections: cmd.StringSlice("desired-collections"),
+		WebsocketHost:      cmd.String("websocket-host"),
+		BootstrapServers:   cmd.StringSlice("bootstrap-servers"),
+		OutputTopic:        cmd.String("output-topic"),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create new kafka firehose: %w", err)
