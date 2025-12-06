@@ -7,9 +7,12 @@ require (
 	github.com/bluesky-social/go-util v0.0.0-20251012040650-2ebbf57f5934
 	github.com/bluesky-social/indigo v0.0.0-20251206005924-d49b45419635
 	github.com/gorilla/websocket v1.5.1
+	github.com/ipfs/go-cid v0.4.1
 	github.com/prometheus/client_golang v1.23.2
 	github.com/twmb/franz-go v1.19.5
 	github.com/urfave/cli/v2 v2.27.7
+	github.com/whyrusleeping/cbor-gen v0.2.1-0.20241030202151-b7a6831be65e
+	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028
 	google.golang.org/protobuf v1.36.9
 )
 
@@ -32,7 +35,6 @@ require (
 	github.com/ipfs/bbloom v0.0.4 // indirect
 	github.com/ipfs/go-block-format v0.2.0 // indirect
 	github.com/ipfs/go-blockservice v0.5.2 // indirect
-	github.com/ipfs/go-cid v0.4.1 // indirect
 	github.com/ipfs/go-datastore v0.6.0 // indirect
 	github.com/ipfs/go-ipfs-blockstore v1.3.1 // indirect
 	github.com/ipfs/go-ipfs-ds-help v1.1.1 // indirect
@@ -74,7 +76,6 @@ require (
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/twmb/franz-go/pkg/kadm v1.16.1 // indirect
 	github.com/twmb/franz-go/pkg/kmsg v1.11.2 // indirect
-	github.com/whyrusleeping/cbor-gen v0.2.1-0.20241030202151-b7a6831be65e // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	gitlab.com/yawning/secp256k1-voi v0.0.0-20230925100816-f2616030848b // indirect
 	gitlab.com/yawning/tuplehash v0.0.0-20230713102510-df83abbf9a02 // indirect
@@ -92,7 +93,6 @@ require (
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
 	golang.org/x/tools v0.15.0 // indirect
-	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	gorm.io/gorm v1.25.9 // indirect
 	lukechampine.com/blake3 v1.2.1 // indirect
 )
