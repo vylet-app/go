@@ -44,3 +44,6 @@ run-firehose:
 
 run-indexer:
     go run ./cmd/indexer
+
+run-dev-env:
+    bash dev.sh

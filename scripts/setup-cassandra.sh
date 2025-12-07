@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Waiting for Cassandra to be ready..."
-max_attempts=30
+max_attempts=45
 attempt=0
 
 while [ $attempt -lt $max_attempts ]; do
