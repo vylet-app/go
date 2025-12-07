@@ -4,33 +4,41 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	vyletkafka "github.com/vylet-app/go/bus/proto"
 	vyletdatabase "github.com/vylet-app/go/database/proto"
 	"github.com/vylet-app/go/generated/vylet"
 	"github.com/vylet-app/go/internal/helpers"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *Server) handleActorProfile(ctx context.Context, evt *vyletkafka.FirehoseEvent) error {
 	var rec vylet.ActorProfile
 	op := evt.Commit
-
 	switch op.Operation {
 	case vyletkafka.CommitOperation_COMMIT_OPERATION_CREATE:
 		if err := json.Unmarshal(op.Record, &rec); err != nil {
 			return fmt.Errorf("failed to unmarshal profile record: %w", err)
 		}
 
+		createdAtTime, err := time.Parse(time.RFC3339Nano, rec.CreatedAt)
+		if err != nil {
+			return fmt.Errorf("failed to parse time in record: %w", err)
+		}
+
 		req := vyletdatabase.CreateProfileRequest{
-			Did:         evt.Did,
-			DisplayName: rec.DisplayName,
-			Description: rec.Description,
-			Pronouns:    rec.Pronouns,
-			CreatedAt:   rec.CreatedAt,
+			Profile: &vyletdatabase.Profile{
+				Did:         evt.Did,
+				DisplayName: rec.DisplayName,
+				Description: rec.Description,
+				Pronouns:    rec.Pronouns,
+				CreatedAt:   timestamppb.New(createdAtTime),
+			},
 		}
 
 		if rec.Avatar != nil {
-			req.Avatar = helpers.ToStringPtr(rec.Avatar.Ref.String())
+			req.Profile.Avatar = helpers.ToStringPtr(rec.Avatar.Ref.String())
 		}
 
 		resp, err := s.db.Profile.CreateProfile(ctx, &req)
@@ -41,7 +49,30 @@ func (s *Server) handleActorProfile(ctx context.Context, evt *vyletkafka.Firehos
 			return fmt.Errorf("error creating profile: %s", *resp.Error)
 		}
 	case vyletkafka.CommitOperation_COMMIT_OPERATION_UPDATE:
-		return fmt.Errorf("unhandled operation")
+		if err := json.Unmarshal(op.Record, &rec); err != nil {
+			return fmt.Errorf("failed to unmarshal profile record: %w", err)
+		}
+
+		req := vyletdatabase.CreateProfileRequest{
+			Profile: &vyletdatabase.Profile{
+				Did:         evt.Did,
+				DisplayName: rec.DisplayName,
+				Description: rec.Description,
+				Pronouns:    rec.Pronouns,
+			},
+		}
+
+		if rec.Avatar != nil {
+			req.Profile.Avatar = helpers.ToStringPtr(rec.Avatar.Ref.String())
+		}
+
+		resp, err := s.db.Profile.UpdateProfile(ctx, &req)
+		if err != nil {
+			return fmt.Errorf("failed to create update profile request: %w", err)
+		}
+		if resp.Error != nil {
+			return fmt.Errorf("error updating profile: %w", err)
+		}
 	case vyletkafka.CommitOperation_COMMIT_OPERATION_DELETE:
 		resp, err := s.db.Profile.DeleteProfile(ctx, &vyletdatabase.DeleteProfileRequest{
 			Did: evt.Did,

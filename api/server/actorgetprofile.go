@@ -38,30 +38,31 @@ func (s *Server) handleGetProfile(e echo.Context) error {
 		return ErrInternalServerErr
 	}
 
-	profile, err := s.client.Profile.GetProfile(ctx, &vyletdatabase.GetProfileRequest{
+	resp, err := s.client.Profile.GetProfile(ctx, &vyletdatabase.GetProfileRequest{
 		Did: did,
 	})
 	if err != nil {
 		logger.Error("error getting profile", "err", err)
 		return ErrInternalServerErr
 	}
-	if profile.Error != nil {
-		if client.IsNotFoundError(profile.Error) {
+	if resp.Error != nil {
+		if client.IsNotFoundError(resp.Error) {
 			return ErrNotFound
 		}
 
-		logger.Error("error getting profile", "err", *profile.Error)
+		logger.Error("error getting profile", "err", *resp.Error)
 		return ErrInternalServerErr
 	}
 
 	pv := vylet.ActorDefs_ProfileView{
 		Did:         did,
 		Handle:      handle,
-		Description: profile.Description,
-		DisplayName: profile.DisplayName,
-		Avatar:      profile.Avatar,
-		CreatedAt:   profile.CreatedAt.AsTime().Format(time.RFC3339Nano),
-		IndexedAt:   profile.IndexedAt.AsTime().Format(time.RFC3339Nano),
+		Avatar:      resp.Profile.Avatar,
+		Description: resp.Profile.Description,
+		DisplayName: resp.Profile.DisplayName,
+		Pronouns:    resp.Profile.Pronouns,
+		CreatedAt:   resp.Profile.CreatedAt.AsTime().Format(time.RFC3339Nano),
+		IndexedAt:   resp.Profile.IndexedAt.AsTime().Format(time.RFC3339Nano),
 		Viewer: &vylet.ActorDefs_ViewerState{
 			BlockedBy:  new(bool),
 			Blocking:   new(string),
@@ -69,7 +70,6 @@ func (s *Server) handleGetProfile(e echo.Context) error {
 			Following:  new(string),
 			Muted:      new(bool),
 		},
-		Pronouns: new(string),
 	}
 
 	return e.JSON(200, pv)

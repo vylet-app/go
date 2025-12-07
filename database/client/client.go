@@ -12,6 +12,7 @@ import (
 type Client struct {
 	client  *grpc.ClientConn
 	Profile vyletdatabase.ProfileServiceClient
+	Post    vyletdatabase.PostServiceClient
 }
 
 type Args struct {

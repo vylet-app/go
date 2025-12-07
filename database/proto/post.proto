@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package vyletdatabase;
+option go_package = "./;vyletdatabase";
+
+import "buf/validate/validate.proto";
+
+import "google/protobuf/timestamp.proto";
+
+service PostService {
+  rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
+  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
+
+  rpc GetPost(GetPostRequest) returns (GetPostResponse);
+  rpc GetPosts(GetPostsRequest) returns (GetPostsResponse);
+}
+
+message Image {
+  string cid = 1 [
+    (buf.validate.field).required = true
+  ];
+  optional string alt = 2;
+  optional int64 width = 3;
+  optional int64 height = 4;
+}
+
+message Post {
+  string uri = 1 [
+    (buf.validate.field).required = true
+  ];
+  repeated Image images = 2;
+  optional string caption = 3;
+  optional bytes facets = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp indexed_at = 6;
+}
+
+message CreatePostRequest {
+  Post post = 1;
+}
+
+message CreatePostResponse {
+  optional string error = 1;
+}
+
+message DeletePostRequest {
+  string uri = 1 [
+    (buf.validate.field).required = true
+  ];
+}
+
+message DeletePostResponse {
+  optional string error = 1;
+}
+
+message GetPostRequest {
+  string uri = 1 [
+    (buf.validate.field).required = true
+  ];
+}
+
+message GetPostResponse {
+  optional string error = 1;
+  optional Post post = 2;
+}
+
+message GetPostsRequest {
+  repeated string uris = 1 [
+    (buf.validate.field).required = true
+  ];
+}
+
+message GetPostsResponse {
+  optional string error = 1;
+  repeated Post posts = 2;
+}

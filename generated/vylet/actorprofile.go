@@ -16,7 +16,7 @@ type ActorProfile struct {
 	LexiconTypeID string `json:"$type" cborgen:"$type,const=app.vylet.actor.profile"`
 	// avatar: Small image to be displayed next to posts from account.
 	Avatar    *lexutil.LexBlob `json:"avatar,omitempty" cborgen:"avatar,omitempty"`
-	CreatedAt *string          `json:"createdAt,omitempty" cborgen:"createdAt,omitempty"`
+	CreatedAt string           `json:"createdAt" cborgen:"createdAt"`
 	// description: Free-form profile description text.
 	Description *string `json:"description,omitempty" cborgen:"description,omitempty"`
 	DisplayName *string `json:"displayName,omitempty" cborgen:"displayName,omitempty"`

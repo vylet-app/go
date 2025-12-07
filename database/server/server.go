@@ -31,6 +31,7 @@ const (
 
 type Server struct {
 	vyletdatabase.UnimplementedProfileServiceServer
+	vyletdatabase.UnimplementedPostServiceServer
 
 	logger *slog.Logger
 
@@ -155,6 +156,7 @@ func (s *Server) Run(ctx context.Context) error {
 
 func (s *Server) registerServices() {
 	vyletdatabase.RegisterProfileServiceServer(s.grpcServer, s)
+	vyletdatabase.RegisterPostServiceServer(s.grpcServer, s)
 	reflection.Register(s.grpcServer)
 }
 
