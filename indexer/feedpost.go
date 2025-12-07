@@ -47,6 +47,7 @@ func (s *Server) handleFeedPost(ctx context.Context, evt *vyletkafka.FirehoseEve
 		req := vyletdatabase.CreatePostRequest{
 			Post: &vyletdatabase.Post{
 				Uri:       uri,
+				Cid:       evt.Commit.Cid,
 				Images:    images,
 				Caption:   rec.Caption,
 				CreatedAt: timestamppb.New(createdAtTime),

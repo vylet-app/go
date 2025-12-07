@@ -11,7 +11,6 @@ service PostService {
   rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
   rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
 
-  rpc GetPost(GetPostRequest) returns (GetPostResponse);
   rpc GetPosts(GetPostsRequest) returns (GetPostsResponse);
 }
 
@@ -22,17 +21,22 @@ message Image {
   optional string alt = 2;
   optional int64 width = 3;
   optional int64 height = 4;
+  int64 size = 5;
+  string mime = 6;
 }
 
 message Post {
   string uri = 1 [
     (buf.validate.field).required = true
   ];
-  repeated Image images = 2;
-  optional string caption = 3;
-  optional bytes facets = 4;
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp indexed_at = 6;
+  string cid = 2 [
+    (buf.validate.field).required = true
+  ];
+  repeated Image images = 3;
+  optional string caption = 4;
+  optional bytes facets = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp indexed_at = 7;
 }
 
 message CreatePostRequest {
@@ -51,17 +55,6 @@ message DeletePostRequest {
 
 message DeletePostResponse {
   optional string error = 1;
-}
-
-message GetPostRequest {
-  string uri = 1 [
-    (buf.validate.field).required = true
-  ];
-}
-
-message GetPostResponse {
-  optional string error = 1;
-  optional Post post = 2;
 }
 
 message GetPostsRequest {

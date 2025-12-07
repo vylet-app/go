@@ -21,7 +21,6 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	PostService_CreatePost_FullMethodName = "/vyletdatabase.PostService/CreatePost"
 	PostService_DeletePost_FullMethodName = "/vyletdatabase.PostService/DeletePost"
-	PostService_GetPost_FullMethodName    = "/vyletdatabase.PostService/GetPost"
 	PostService_GetPosts_FullMethodName   = "/vyletdatabase.PostService/GetPosts"
 )
 
@@ -31,7 +30,6 @@ const (
 type PostServiceClient interface {
 	CreatePost(ctx context.Context, in *CreatePostRequest, opts ...grpc.CallOption) (*CreatePostResponse, error)
 	DeletePost(ctx context.Context, in *DeletePostRequest, opts ...grpc.CallOption) (*DeletePostResponse, error)
-	GetPost(ctx context.Context, in *GetPostRequest, opts ...grpc.CallOption) (*GetPostResponse, error)
 	GetPosts(ctx context.Context, in *GetPostsRequest, opts ...grpc.CallOption) (*GetPostsResponse, error)
 }
 
@@ -63,16 +61,6 @@ func (c *postServiceClient) DeletePost(ctx context.Context, in *DeletePostReques
 	return out, nil
 }
 
-func (c *postServiceClient) GetPost(ctx context.Context, in *GetPostRequest, opts ...grpc.CallOption) (*GetPostResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetPostResponse)
-	err := c.cc.Invoke(ctx, PostService_GetPost_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *postServiceClient) GetPosts(ctx context.Context, in *GetPostsRequest, opts ...grpc.CallOption) (*GetPostsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetPostsResponse)
@@ -89,7 +77,6 @@ func (c *postServiceClient) GetPosts(ctx context.Context, in *GetPostsRequest, o
 type PostServiceServer interface {
 	CreatePost(context.Context, *CreatePostRequest) (*CreatePostResponse, error)
 	DeletePost(context.Context, *DeletePostRequest) (*DeletePostResponse, error)
-	GetPost(context.Context, *GetPostRequest) (*GetPostResponse, error)
 	GetPosts(context.Context, *GetPostsRequest) (*GetPostsResponse, error)
 	mustEmbedUnimplementedPostServiceServer()
 }
@@ -106,9 +93,6 @@ func (UnimplementedPostServiceServer) CreatePost(context.Context, *CreatePostReq
 }
 func (UnimplementedPostServiceServer) DeletePost(context.Context, *DeletePostRequest) (*DeletePostResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeletePost not implemented")
-}
-func (UnimplementedPostServiceServer) GetPost(context.Context, *GetPostRequest) (*GetPostResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetPost not implemented")
 }
 func (UnimplementedPostServiceServer) GetPosts(context.Context, *GetPostsRequest) (*GetPostsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPosts not implemented")
@@ -170,24 +154,6 @@ func _PostService_DeletePost_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PostService_GetPost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetPostRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PostServiceServer).GetPost(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: PostService_GetPost_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PostServiceServer).GetPost(ctx, req.(*GetPostRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _PostService_GetPosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPostsRequest)
 	if err := dec(in); err != nil {
@@ -220,10 +186,6 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeletePost",
 			Handler:    _PostService_DeletePost_Handler,
-		},
-		{
-			MethodName: "GetPost",
-			Handler:    _PostService_GetPost_Handler,
 		},
 		{
 			MethodName: "GetPosts",

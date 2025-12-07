@@ -1,12 +1,14 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
 var (
+	ErrDatabaseNotFound  = errors.New("not found")
 	ErrInternalServerErr = echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
 	ErrInvalidInput      = echo.NewHTTPError(http.StatusBadRequest, "invalid input")
 	ErrNotFound          = echo.NewHTTPError(http.StatusNotFound, "not found")

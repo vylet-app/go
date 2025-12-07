@@ -33,7 +33,7 @@ type FeedDefs_PostView struct {
 	Author     *ActorDefs_ProfileViewBasic   `json:"author" cborgen:"author"`
 	Caption    *string                       `json:"caption,omitempty" cborgen:"caption,omitempty"`
 	Cid        string                        `json:"cid" cborgen:"cid"`
-	CreatedAt  *string                       `json:"createdAt,omitempty" cborgen:"createdAt,omitempty"`
+	CreatedAt  string                        `json:"createdAt" cborgen:"createdAt"`
 	Facets     []*RichtextFacet              `json:"facets,omitempty" cborgen:"facets,omitempty"`
 	IndexedAt  string                        `json:"indexedAt" cborgen:"indexedAt"`
 	Labels     []*comatproto.LabelDefs_Label `json:"labels,omitempty" cborgen:"labels,omitempty"`

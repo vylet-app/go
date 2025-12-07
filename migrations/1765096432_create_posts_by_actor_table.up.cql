@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS posts_by_actor (
 	uri TEXT,
+	cid TEXT,
 	author_did TEXT,
 	caption TEXT,
 	facets TEXT,
