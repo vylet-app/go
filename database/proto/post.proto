@@ -12,6 +12,7 @@ service PostService {
   rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
 
   rpc GetPosts(GetPostsRequest) returns (GetPostsResponse);
+  rpc GetPostsByActor(GetPostsByActorRequest) returns (GetPostsByActorResponse);
 }
 
 message Image {
@@ -66,4 +67,20 @@ message GetPostsRequest {
 message GetPostsResponse {
   optional string error = 1;
   repeated Post posts = 2;
+}
+
+message GetPostsByActorRequest {
+  string did = 1 [
+    (buf.validate.field).required = true
+  ];
+  int64 limit = 2 [
+    (buf.validate.field).required = true
+  ];
+  optional string cursor = 3;
+}
+
+message GetPostsByActorResponse {
+  optional string error = 1;
+  repeated Post posts = 2;
+  optional string cursor = 3;
 }

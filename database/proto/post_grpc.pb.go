@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PostService_CreatePost_FullMethodName = "/vyletdatabase.PostService/CreatePost"
-	PostService_DeletePost_FullMethodName = "/vyletdatabase.PostService/DeletePost"
-	PostService_GetPosts_FullMethodName   = "/vyletdatabase.PostService/GetPosts"
+	PostService_CreatePost_FullMethodName      = "/vyletdatabase.PostService/CreatePost"
+	PostService_DeletePost_FullMethodName      = "/vyletdatabase.PostService/DeletePost"
+	PostService_GetPosts_FullMethodName        = "/vyletdatabase.PostService/GetPosts"
+	PostService_GetPostsByActor_FullMethodName = "/vyletdatabase.PostService/GetPostsByActor"
 )
 
 // PostServiceClient is the client API for PostService service.
@@ -31,6 +32,7 @@ type PostServiceClient interface {
 	CreatePost(ctx context.Context, in *CreatePostRequest, opts ...grpc.CallOption) (*CreatePostResponse, error)
 	DeletePost(ctx context.Context, in *DeletePostRequest, opts ...grpc.CallOption) (*DeletePostResponse, error)
 	GetPosts(ctx context.Context, in *GetPostsRequest, opts ...grpc.CallOption) (*GetPostsResponse, error)
+	GetPostsByActor(ctx context.Context, in *GetPostsByActorRequest, opts ...grpc.CallOption) (*GetPostsByActorResponse, error)
 }
 
 type postServiceClient struct {
@@ -71,6 +73,16 @@ func (c *postServiceClient) GetPosts(ctx context.Context, in *GetPostsRequest, o
 	return out, nil
 }
 
+func (c *postServiceClient) GetPostsByActor(ctx context.Context, in *GetPostsByActorRequest, opts ...grpc.CallOption) (*GetPostsByActorResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPostsByActorResponse)
+	err := c.cc.Invoke(ctx, PostService_GetPostsByActor_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PostServiceServer is the server API for PostService service.
 // All implementations must embed UnimplementedPostServiceServer
 // for forward compatibility.
@@ -78,6 +90,7 @@ type PostServiceServer interface {
 	CreatePost(context.Context, *CreatePostRequest) (*CreatePostResponse, error)
 	DeletePost(context.Context, *DeletePostRequest) (*DeletePostResponse, error)
 	GetPosts(context.Context, *GetPostsRequest) (*GetPostsResponse, error)
+	GetPostsByActor(context.Context, *GetPostsByActorRequest) (*GetPostsByActorResponse, error)
 	mustEmbedUnimplementedPostServiceServer()
 }
 
@@ -96,6 +109,9 @@ func (UnimplementedPostServiceServer) DeletePost(context.Context, *DeletePostReq
 }
 func (UnimplementedPostServiceServer) GetPosts(context.Context, *GetPostsRequest) (*GetPostsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPosts not implemented")
+}
+func (UnimplementedPostServiceServer) GetPostsByActor(context.Context, *GetPostsByActorRequest) (*GetPostsByActorResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPostsByActor not implemented")
 }
 func (UnimplementedPostServiceServer) mustEmbedUnimplementedPostServiceServer() {}
 func (UnimplementedPostServiceServer) testEmbeddedByValue()                     {}
@@ -172,6 +188,24 @@ func _PostService_GetPosts_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostService_GetPostsByActor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPostsByActorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).GetPostsByActor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PostService_GetPostsByActor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).GetPostsByActor(ctx, req.(*GetPostsByActorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PostService_ServiceDesc is the grpc.ServiceDesc for PostService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +224,10 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPosts",
 			Handler:    _PostService_GetPosts_Handler,
+		},
+		{
+			MethodName: "GetPostsByActor",
+			Handler:    _PostService_GetPostsByActor_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

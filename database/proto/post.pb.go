@@ -471,6 +471,126 @@ func (x *GetPostsResponse) GetPosts() []*Post {
 	return nil
 }
 
+type GetPostsByActorRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Did           string                 `protobuf:"bytes,1,opt,name=did,proto3" json:"did,omitempty"`
+	Limit         int64                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        *string                `protobuf:"bytes,3,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPostsByActorRequest) Reset() {
+	*x = GetPostsByActorRequest{}
+	mi := &file_post_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPostsByActorRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPostsByActorRequest) ProtoMessage() {}
+
+func (x *GetPostsByActorRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_post_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPostsByActorRequest.ProtoReflect.Descriptor instead.
+func (*GetPostsByActorRequest) Descriptor() ([]byte, []int) {
+	return file_post_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetPostsByActorRequest) GetDid() string {
+	if x != nil {
+		return x.Did
+	}
+	return ""
+}
+
+func (x *GetPostsByActorRequest) GetLimit() int64 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *GetPostsByActorRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+type GetPostsByActorResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Error         *string                `protobuf:"bytes,1,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	Posts         []*Post                `protobuf:"bytes,2,rep,name=posts,proto3" json:"posts,omitempty"`
+	Cursor        *string                `protobuf:"bytes,3,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPostsByActorResponse) Reset() {
+	*x = GetPostsByActorResponse{}
+	mi := &file_post_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPostsByActorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPostsByActorResponse) ProtoMessage() {}
+
+func (x *GetPostsByActorResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_post_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPostsByActorResponse.ProtoReflect.Descriptor instead.
+func (*GetPostsByActorResponse) Descriptor() ([]byte, []int) {
+	return file_post_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetPostsByActorResponse) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+func (x *GetPostsByActorResponse) GetPosts() []*Post {
+	if x != nil {
+		return x.Posts
+	}
+	return nil
+}
+
+func (x *GetPostsByActorResponse) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
 var File_post_proto protoreflect.FileDescriptor
 
 const file_post_proto_rawDesc = "" +
@@ -515,13 +635,25 @@ const file_post_proto_rawDesc = "" +
 	"\x10GetPostsResponse\x12\x19\n" +
 	"\x05error\x18\x01 \x01(\tH\x00R\x05error\x88\x01\x01\x12)\n" +
 	"\x05posts\x18\x02 \x03(\v2\x13.vyletdatabase.PostR\x05postsB\b\n" +
-	"\x06_error2\x80\x02\n" +
+	"\x06_error\"x\n" +
+	"\x16GetPostsByActorRequest\x12\x18\n" +
+	"\x03did\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x03did\x12\x1c\n" +
+	"\x05limit\x18\x02 \x01(\x03B\x06\xbaH\x03\xc8\x01\x01R\x05limit\x12\x1b\n" +
+	"\x06cursor\x18\x03 \x01(\tH\x00R\x06cursor\x88\x01\x01B\t\n" +
+	"\a_cursor\"\x91\x01\n" +
+	"\x17GetPostsByActorResponse\x12\x19\n" +
+	"\x05error\x18\x01 \x01(\tH\x00R\x05error\x88\x01\x01\x12)\n" +
+	"\x05posts\x18\x02 \x03(\v2\x13.vyletdatabase.PostR\x05posts\x12\x1b\n" +
+	"\x06cursor\x18\x03 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
+	"\x06_errorB\t\n" +
+	"\a_cursor2\xe2\x02\n" +
 	"\vPostService\x12Q\n" +
 	"\n" +
 	"CreatePost\x12 .vyletdatabase.CreatePostRequest\x1a!.vyletdatabase.CreatePostResponse\x12Q\n" +
 	"\n" +
 	"DeletePost\x12 .vyletdatabase.DeletePostRequest\x1a!.vyletdatabase.DeletePostResponse\x12K\n" +
-	"\bGetPosts\x12\x1e.vyletdatabase.GetPostsRequest\x1a\x1f.vyletdatabase.GetPostsResponseB\x84\x01\n" +
+	"\bGetPosts\x12\x1e.vyletdatabase.GetPostsRequest\x1a\x1f.vyletdatabase.GetPostsResponse\x12`\n" +
+	"\x0fGetPostsByActor\x12%.vyletdatabase.GetPostsByActorRequest\x1a&.vyletdatabase.GetPostsByActorResponseB\x84\x01\n" +
 	"\x11com.vyletdatabaseB\tPostProtoP\x01Z\x10./;vyletdatabase\xa2\x02\x03VXX\xaa\x02\rVyletdatabase\xca\x02\rVyletdatabase\xe2\x02\x19Vyletdatabase\\GPBMetadata\xea\x02\rVyletdatabaseb\x06proto3"
 
 var (
@@ -536,35 +668,40 @@ func file_post_proto_rawDescGZIP() []byte {
 	return file_post_proto_rawDescData
 }
 
-var file_post_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_post_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_post_proto_goTypes = []any{
-	(*Image)(nil),                 // 0: vyletdatabase.Image
-	(*Post)(nil),                  // 1: vyletdatabase.Post
-	(*CreatePostRequest)(nil),     // 2: vyletdatabase.CreatePostRequest
-	(*CreatePostResponse)(nil),    // 3: vyletdatabase.CreatePostResponse
-	(*DeletePostRequest)(nil),     // 4: vyletdatabase.DeletePostRequest
-	(*DeletePostResponse)(nil),    // 5: vyletdatabase.DeletePostResponse
-	(*GetPostsRequest)(nil),       // 6: vyletdatabase.GetPostsRequest
-	(*GetPostsResponse)(nil),      // 7: vyletdatabase.GetPostsResponse
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(*Image)(nil),                   // 0: vyletdatabase.Image
+	(*Post)(nil),                    // 1: vyletdatabase.Post
+	(*CreatePostRequest)(nil),       // 2: vyletdatabase.CreatePostRequest
+	(*CreatePostResponse)(nil),      // 3: vyletdatabase.CreatePostResponse
+	(*DeletePostRequest)(nil),       // 4: vyletdatabase.DeletePostRequest
+	(*DeletePostResponse)(nil),      // 5: vyletdatabase.DeletePostResponse
+	(*GetPostsRequest)(nil),         // 6: vyletdatabase.GetPostsRequest
+	(*GetPostsResponse)(nil),        // 7: vyletdatabase.GetPostsResponse
+	(*GetPostsByActorRequest)(nil),  // 8: vyletdatabase.GetPostsByActorRequest
+	(*GetPostsByActorResponse)(nil), // 9: vyletdatabase.GetPostsByActorResponse
+	(*timestamppb.Timestamp)(nil),   // 10: google.protobuf.Timestamp
 }
 var file_post_proto_depIdxs = []int32{
-	0, // 0: vyletdatabase.Post.images:type_name -> vyletdatabase.Image
-	8, // 1: vyletdatabase.Post.created_at:type_name -> google.protobuf.Timestamp
-	8, // 2: vyletdatabase.Post.indexed_at:type_name -> google.protobuf.Timestamp
-	1, // 3: vyletdatabase.CreatePostRequest.post:type_name -> vyletdatabase.Post
-	1, // 4: vyletdatabase.GetPostsResponse.posts:type_name -> vyletdatabase.Post
-	2, // 5: vyletdatabase.PostService.CreatePost:input_type -> vyletdatabase.CreatePostRequest
-	4, // 6: vyletdatabase.PostService.DeletePost:input_type -> vyletdatabase.DeletePostRequest
-	6, // 7: vyletdatabase.PostService.GetPosts:input_type -> vyletdatabase.GetPostsRequest
-	3, // 8: vyletdatabase.PostService.CreatePost:output_type -> vyletdatabase.CreatePostResponse
-	5, // 9: vyletdatabase.PostService.DeletePost:output_type -> vyletdatabase.DeletePostResponse
-	7, // 10: vyletdatabase.PostService.GetPosts:output_type -> vyletdatabase.GetPostsResponse
-	8, // [8:11] is the sub-list for method output_type
-	5, // [5:8] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	0,  // 0: vyletdatabase.Post.images:type_name -> vyletdatabase.Image
+	10, // 1: vyletdatabase.Post.created_at:type_name -> google.protobuf.Timestamp
+	10, // 2: vyletdatabase.Post.indexed_at:type_name -> google.protobuf.Timestamp
+	1,  // 3: vyletdatabase.CreatePostRequest.post:type_name -> vyletdatabase.Post
+	1,  // 4: vyletdatabase.GetPostsResponse.posts:type_name -> vyletdatabase.Post
+	1,  // 5: vyletdatabase.GetPostsByActorResponse.posts:type_name -> vyletdatabase.Post
+	2,  // 6: vyletdatabase.PostService.CreatePost:input_type -> vyletdatabase.CreatePostRequest
+	4,  // 7: vyletdatabase.PostService.DeletePost:input_type -> vyletdatabase.DeletePostRequest
+	6,  // 8: vyletdatabase.PostService.GetPosts:input_type -> vyletdatabase.GetPostsRequest
+	8,  // 9: vyletdatabase.PostService.GetPostsByActor:input_type -> vyletdatabase.GetPostsByActorRequest
+	3,  // 10: vyletdatabase.PostService.CreatePost:output_type -> vyletdatabase.CreatePostResponse
+	5,  // 11: vyletdatabase.PostService.DeletePost:output_type -> vyletdatabase.DeletePostResponse
+	7,  // 12: vyletdatabase.PostService.GetPosts:output_type -> vyletdatabase.GetPostsResponse
+	9,  // 13: vyletdatabase.PostService.GetPostsByActor:output_type -> vyletdatabase.GetPostsByActorResponse
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_post_proto_init() }
@@ -577,13 +714,15 @@ func file_post_proto_init() {
 	file_post_proto_msgTypes[3].OneofWrappers = []any{}
 	file_post_proto_msgTypes[5].OneofWrappers = []any{}
 	file_post_proto_msgTypes[7].OneofWrappers = []any{}
+	file_post_proto_msgTypes[8].OneofWrappers = []any{}
+	file_post_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_post_proto_rawDesc), len(file_post_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
