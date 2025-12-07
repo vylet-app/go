@@ -11,12 +11,12 @@ import (
 // ActorDefs_ProfileView is a "profileView" in the app.vylet.actor.defs schema.
 type ActorDefs_ProfileView struct {
 	Avatar      *string                       `json:"avatar,omitempty" cborgen:"avatar,omitempty"`
-	CreatedAt   *string                       `json:"createdAt,omitempty" cborgen:"createdAt,omitempty"`
+	CreatedAt   string                        `json:"createdAt" cborgen:"createdAt"`
 	Description *string                       `json:"description,omitempty" cborgen:"description,omitempty"`
 	Did         string                        `json:"did" cborgen:"did"`
 	DisplayName *string                       `json:"displayName,omitempty" cborgen:"displayName,omitempty"`
 	Handle      string                        `json:"handle" cborgen:"handle"`
-	IndexedAt   *string                       `json:"indexedAt,omitempty" cborgen:"indexedAt,omitempty"`
+	IndexedAt   string                        `json:"indexedAt" cborgen:"indexedAt"`
 	Labels      []*comatproto.LabelDefs_Label `json:"labels,omitempty" cborgen:"labels,omitempty"`
 	Pronouns    *string                       `json:"pronouns,omitempty" cborgen:"pronouns,omitempty"`
 	Viewer      *ActorDefs_ViewerState        `json:"viewer,omitempty" cborgen:"viewer,omitempty"`
@@ -25,10 +25,11 @@ type ActorDefs_ProfileView struct {
 // ActorDefs_ProfileViewBasic is a "profileViewBasic" in the app.vylet.actor.defs schema.
 type ActorDefs_ProfileViewBasic struct {
 	Avatar      *string                       `json:"avatar,omitempty" cborgen:"avatar,omitempty"`
-	CreatedAt   *string                       `json:"createdAt,omitempty" cborgen:"createdAt,omitempty"`
+	CreatedAt   string                        `json:"createdAt" cborgen:"createdAt"`
 	Did         string                        `json:"did" cborgen:"did"`
 	DisplayName *string                       `json:"displayName,omitempty" cborgen:"displayName,omitempty"`
 	Handle      string                        `json:"handle" cborgen:"handle"`
+	IndexedAt   string                        `json:"indexedAt" cborgen:"indexedAt"`
 	Labels      []*comatproto.LabelDefs_Label `json:"labels,omitempty" cborgen:"labels,omitempty"`
 	Pronouns    *string                       `json:"pronouns,omitempty" cborgen:"pronouns,omitempty"`
 	Viewer      *ActorDefs_ViewerState        `json:"viewer,omitempty" cborgen:"viewer,omitempty"`

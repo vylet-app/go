@@ -45,5 +45,8 @@ run-firehose:
 run-indexer:
     go run ./cmd/indexer
 
+run-api:
+    go run ./cmd/api
+
 run-dev-env:
     bash dev.sh

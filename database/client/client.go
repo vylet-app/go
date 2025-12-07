@@ -42,3 +42,7 @@ func New(args *Args) (*Client, error) {
 func (c *Client) Close() error {
 	return c.client.Close()
 }
+
+func IsNotFoundError(errStr *string) bool {
+	return errStr != nil && *errStr == "not found"
+}

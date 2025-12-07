@@ -4,7 +4,9 @@
 
 package vylet
 
-import lexutil "github.com/bluesky-social/indigo/lex/util"
+import (
+	lexutil "github.com/bluesky-social/indigo/lex/util"
+)
 
 func init() {
 	lexutil.RegisterType("app.vylet.graph.follow", &GraphFollow{})
