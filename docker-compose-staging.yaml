@@ -165,6 +165,19 @@ services:
       VYLET_CDN_CONSUMER_GROUP: "vylet-cdn-staging"
     restart: unless-stopped
 
+  imgproxy:
+    image: darthsim/imgproxy:latest
+    container_name: imgproxy
+    network_mode: host
+    depends_on:
+      - api
+    environment:
+      IMGPROXY_BIND: ":9525"
+      IMGPROXY_BASE_URL: "http://localhost:9525"
+      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_PRESETS: "fullsize=resizing_type:fit/width:2000/height:2000/format:jpeg,thumb=resizing_type:fit/width:200/height:200/format:jpeg"
+    restart: unless-stopped
+
 volumes:
   zookeeper-data:
   zookeeper-logs:
