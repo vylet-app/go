@@ -24,6 +24,10 @@ func (s *Server) handleCommit(ctx context.Context, evt *vyletkafka.FirehoseEvent
 	switch evt.Commit.Collection {
 	case "app.vylet.actor.profile":
 		return s.handleActorProfile(ctx, evt)
+	case "app.vylet.feed.post":
+		return s.handleFeedPost(ctx, evt)
+	case "app.vylet.feed.like":
+		return s.handleFeedLike(ctx, evt)
 	}
 
 	return nil

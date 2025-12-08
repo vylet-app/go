@@ -126,6 +126,10 @@ func (s *Server) registerHandlers() {
 	// app.vylet.actor
 	s.echo.GET("/xrpc/app.vylet.actor.getProfile", s.handleGetProfile)
 	s.echo.GET("/xrpc/app.vylet.actor.getProfiles", s.handleGetProfiles)
+
+	// app.vylet.feed
+	s.echo.GET("/xrpc/app.vylet.feed.getPosts", s.handleGetPosts)
+	s.echo.GET("/xrpc/app.vylet.feed.getSubjectLikes", s.handleGetLikesBySubject)
 }
 
 func (s *Server) errorHandler(err error, c echo.Context) {
