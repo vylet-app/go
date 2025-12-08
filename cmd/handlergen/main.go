@@ -227,7 +227,16 @@ type %sInput struct {
 `, packageName, name)
 	_ = contents
 
-	for paramName, subDef := range def.Parameters.Properties {
+	sortedParamNames := make([]string, 0, len(def.Parameters.Properties))
+	for paramName := range def.Parameters.Properties {
+		sortedParamNames = append(sortedParamNames, paramName)
+	}
+	sort.Slice(sortedParamNames, func(i, j int) bool {
+		return sortedParamNames[j] > sortedParamNames[i]
+	})
+
+	for _, paramName := range sortedParamNames {
+		subDef := def.Parameters.Properties[paramName]
 		var typeStr = typeToTypeStr(subDef)
 		structTag := structTagPrefix + ":" + "\"" + paramName
 		if !slices.Contains(def.Parameters.Required, paramName) {

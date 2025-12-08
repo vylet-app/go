@@ -10,9 +10,9 @@ import (
 )
 
 type FeedGetSubjectLikesInput struct {
-	Uri string `query:"uri"`
-	Limit *int64 `query:"limit"`
 	Cursor *string `query:"cursor"`
+	Limit *int64 `query:"limit"`
+	Uri string `query:"uri"`
 }
 
 func (h *Handlers) HandleFeedGetSubjectLikes(e echo.Context) error {
