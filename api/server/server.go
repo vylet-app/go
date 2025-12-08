@@ -21,7 +21,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	slogecho "github.com/samber/slog-echo"
 	"github.com/vylet-app/go/database/client"
-	"github.com/vylet-app/go/handlers"
+	"github.com/vylet-app/go/generated/handlers"
 	"golang.org/x/time/rate"
 )
 

@@ -7,8 +7,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	vyletdatabase "github.com/vylet-app/go/database/proto"
+	"github.com/vylet-app/go/generated/handlers"
 	"github.com/vylet-app/go/generated/vylet"
-	"github.com/vylet-app/go/handlers"
 	"github.com/vylet-app/go/internal/helpers"
 )
 

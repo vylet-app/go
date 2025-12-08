@@ -7,11 +7,9 @@ require (
 	github.com/bluesky-social/go-util v0.0.0-20251012040650-2ebbf57f5934
 	github.com/bluesky-social/indigo v0.0.0-20251206005924-d49b45419635
 	github.com/gocql/gocql v1.7.0
-	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/gorilla/websocket v1.5.1
-	github.com/haileyok/cocoon v0.6.0
 	github.com/ipfs/go-cid v0.4.1
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo-contrib v0.17.4
@@ -23,6 +21,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.7
 	github.com/whyrusleeping/cbor-gen v0.2.1-0.20241030202151-b7a6831be65e
 	golang.org/x/sync v0.18.0
+	golang.org/x/time v0.12.0
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028
 	google.golang.org/grpc v1.74.2
 	google.golang.org/protobuf v1.36.9
@@ -112,7 +111,6 @@ require (
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
-	golang.org/x/time v0.12.0 // indirect
 	golang.org/x/tools v0.38.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250818200422-3122310a409c // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect

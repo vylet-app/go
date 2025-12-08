@@ -18,12 +18,12 @@ type Server interface {
 	ActorGetProfileRequiresAuth() bool
 	HandleActorGetProfiles(e echo.Context, input *ActorGetProfilesInput) (*vylet.ActorGetProfiles_Output, *echo.HTTPError)
 	ActorGetProfilesRequiresAuth() bool
-	HandleFeedGetActorPosts(e echo.Context, input *FeedGetActorPostsInput) (*vylet.FeedGetActorPosts_Output, *echo.HTTPError)
-	FeedGetActorPostsRequiresAuth() bool
 	HandleFeedGetPosts(e echo.Context, input *FeedGetPostsInput) (*vylet.FeedGetPosts_Output, *echo.HTTPError)
 	FeedGetPostsRequiresAuth() bool
 	HandleFeedGetSubjectLikes(e echo.Context, input *FeedGetSubjectLikesInput) (*vylet.FeedGetSubjectLikes_Output, *echo.HTTPError)
 	FeedGetSubjectLikesRequiresAuth() bool
+	HandleFeedGetActorPosts(e echo.Context, input *FeedGetActorPostsInput) (*vylet.FeedGetActorPosts_Output, *echo.HTTPError)
+	FeedGetActorPostsRequiresAuth() bool
 }
 
 type Handlers struct {
@@ -37,7 +37,6 @@ func RegisterHandlers(e *echo.Echo, s Server) {
 
 	e.GET("/xrpc/app.vylet.actor.getProfile", h.HandleActorGetProfile, CreateAuthRequiredMiddleware(s.ActorGetProfileRequiresAuth()))
 	e.GET("/xrpc/app.vylet.actor.getProfiles", h.HandleActorGetProfiles, CreateAuthRequiredMiddleware(s.ActorGetProfilesRequiresAuth()))
-	e.GET("/xrpc/app.vylet.feed.getActorPosts", h.HandleFeedGetActorPosts, CreateAuthRequiredMiddleware(s.FeedGetActorPostsRequiresAuth()))
 	e.GET("/xrpc/app.vylet.feed.getPosts", h.HandleFeedGetPosts, CreateAuthRequiredMiddleware(s.FeedGetPostsRequiresAuth()))
 	e.GET("/xrpc/app.vylet.feed.getSubjectLikes", h.HandleFeedGetSubjectLikes, CreateAuthRequiredMiddleware(s.FeedGetSubjectLikesRequiresAuth()))
 }

@@ -8,6 +8,9 @@ default:
 lexgen:
 	go run ./cmd/lexgen/ --build-file cmd/lexgen/vylet.json {{lexdir}}
 
+handlergen:
+    go run ./cmd/handlergen --ignored-lexicons "com.atproto.*" --lexicons-path "../lexicons" --out-path "./generated/handlers" --lexgen-package-url "github.com/vylet-app/go/generated/vylet" --lexgen-package-name "vylet" --package-name "handlers"
+
 cborgen:
 	go run ./gen
 
