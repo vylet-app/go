@@ -149,6 +149,36 @@ services:
       VYLET_INDEXER_CONSUMER_GROUP: "vylet-indexer-staging"
     restart: unless-stopped
 
+  cdn:
+    image: ghcr.io/vylet-app/go/cdn:main
+    container_name: vylet-cdn
+    network_mode: host
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - database
+    environment:
+      VYLET_CDN_DATABASE_HOST: "localhost:9090"
+      VYLET_BOOTSTRAP_SERVERS: "localhost:9092,localhost:9093,localhost:9094"
+      VYLET_CDN_INPUT_TOPIC: "firehose-events-prod"
+      VYLET_CDN_CONSUMER_GROUP: "vylet-cdn-staging"
+    restart: unless-stopped
+
+  imgproxy:
+    image: darthsim/imgproxy:latest
+    container_name: imgproxy
+    network_mode: host
+    depends_on:
+      - api
+    environment:
+      IMGPROXY_BIND: ":9525"
+      IMGPROXY_ONLY_PRESETS: "true"
+      IMGPROXY_BASE_URL: "http://localhost:9525"
+      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_PRESETS: "fullsize=resizing_type:fit/width:2000/height:2000/format:jpeg,thumb=resizing_type:fit/width:200/height:200/format:jpeg"
+    restart: unless-stopped
+
 volumes:
   zookeeper-data:
   zookeeper-logs:

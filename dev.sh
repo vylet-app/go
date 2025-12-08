@@ -36,6 +36,9 @@ cleanup() {
     if [ ! -z "$INDEXER_PID" ]; then
         kill $INDEXER_PID 2>/dev/null || true
     fi
+    if [ ! -z "$CDN_PID" ]; then
+        kill $CDN_PID 2>/dev/null || true
+    fi
 
     print_success "Services stopped"
     exit 0
@@ -111,6 +114,19 @@ fi
 
 print_success "Indexer running (PID: $INDEXER_PID)"
 
+print_status "Starting CDN (tracking blob references)..."
+go run ./cmd/cdn &
+CDN_PID=$!
+sleep 3
+
+if ! ps -p $CDN_PID > /dev/null; then
+    print_error "CDN failed to start"
+    cleanup
+    exit 1
+fi
+
+print_success "CDN running (PID: $CDN_PID)"
+
 echo ""
 print_success "Full stack is running!"
 echo ""
@@ -123,11 +139,13 @@ echo "  - Cassandra:       localhost:9042"
 echo "  - Database Server: localhost:9090"
 echo "  - Firehose:        PID $FIREHOSE_PID"
 echo "  - Indexer:         PID $INDEXER_PID"
+echo "  - CDN:             PID $CDN_PID"
 echo ""
 echo "Process IDs:"
 echo "  - Database: $DATABASE_PID"
 echo "  - Firehose: $FIREHOSE_PID"
 echo "  - Indexer:  $INDEXER_PID"
+echo "  - CDN:      $CDN_PID"
 echo ""
 print_warning "Press Ctrl+C to stop all services"
 echo ""

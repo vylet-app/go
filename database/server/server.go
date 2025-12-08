@@ -33,6 +33,7 @@ type Server struct {
 	vyletdatabase.UnimplementedProfileServiceServer
 	vyletdatabase.UnimplementedPostServiceServer
 	vyletdatabase.UnimplementedLikeServiceServer
+	vyletdatabase.UnimplementedBlobRefServiceServer
 
 	logger *slog.Logger
 
@@ -159,6 +160,7 @@ func (s *Server) registerServices() {
 	vyletdatabase.RegisterProfileServiceServer(s.grpcServer, s)
 	vyletdatabase.RegisterPostServiceServer(s.grpcServer, s)
 	vyletdatabase.RegisterLikeServiceServer(s.grpcServer, s)
+	vyletdatabase.RegisterBlobRefServiceServer(s.grpcServer, s)
 	reflection.Register(s.grpcServer)
 }
 
