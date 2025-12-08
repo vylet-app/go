@@ -25,5 +25,5 @@ func (h *Handlers) HandleFeedGetActorPosts(e echo.Context) error {
 		return err
 	}
 
-	return e.JSON(200, output)
+	return e.JSON(http.StatusOK, output)
 }
