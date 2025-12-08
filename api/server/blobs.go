@@ -83,17 +83,20 @@ func (s *Server) handleGetBlob(e echo.Context) error {
 }
 
 func (s *Server) getPdsEndpoint(ctx context.Context, did string) (string, error) {
-	doc, err := s.passport.FetchDoc(ctx, did)
+	parsed, err := syntax.ParseDID(did)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse DID: %w", err)
+	}
+
+	doc, err := s.directory.LookupDID(ctx, parsed)
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch DID document: %w", err)
 	}
 
-	// Find the PDS service endpoint
-	for _, service := range doc.Service {
-		if service.Id == "#atproto_pds" {
-			return service.ServiceEndpoint, nil
-		}
+	serviceEndpoint := doc.GetServiceEndpoint("#atproto_pds")
+	if serviceEndpoint == "" {
+		return "", fmt.Errorf("no PDS endpoing found in DID document")
 	}
 
-	return "", fmt.Errorf("no PDS endpoint found in DID document")
+	return serviceEndpoint, nil
 }
