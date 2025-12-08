@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"log"
@@ -103,6 +104,12 @@ func run(cmd *cli.Context) error {
 		schemas = append(schemas, s)
 	}
 
+	if err := os.Mkdir(args.OutPath, 0744); err != nil {
+		if !errors.Is(err, os.ErrExist) {
+			return fmt.Errorf("failed to create out directory: %w", err)
+		}
+	}
+
 	queryDefs := make(map[string]*lex.TypeSchema)
 	procedureDefs := make(map[string]*lex.TypeSchema)
 	for _, s := range schemas {
@@ -129,7 +136,10 @@ func run(cmd *cli.Context) error {
 	}
 
 	for id, def := range queryDefs {
-		generateHandler("get", id, def, args.PackageName)
+		filename := strings.ToLower(getName(id)) + ".go"
+		if err := os.WriteFile(filename, []byte(generateHandler("get", id, def, args.PackageName)), 0644); err != nil {
+			return fmt.Errorf("failed to generate file: %w", err)
+		}
 	}
 
 	generateMain(args.PackageName, args.LexgenPackageUrl, args.LexgenPackageName, queryDefs, procedureDefs)
