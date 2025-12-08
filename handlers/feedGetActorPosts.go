@@ -1,0 +1,29 @@
+package handlers
+
+import (
+	"net/http"
+
+	"github.com/labstack/echo/v4"
+)
+
+type FeedGetActorPostsInput struct {
+	Actor  string  `query:"actor"`
+	Limit  *int64  `query:"limit"`
+	Cursor *string `query:"cursor"`
+}
+
+func (h *Handlers) HandleFeedGetActorPosts(e echo.Context) error {
+	var input FeedGetActorPostsInput
+	if err := e.Bind(&input); err != nil {
+		logger := h.server.Logger().With("handler", "HandleFeedGetActorPosts")
+		logger.Error("failed to bind", "err", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Internal Server Error")
+	}
+
+	output, err := h.server.HandleFeedGetActorPosts(e, &input)
+	if err != nil {
+		return err
+	}
+
+	return e.JSON(200, output)
+}

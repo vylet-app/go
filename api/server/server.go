@@ -21,6 +21,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	slogecho "github.com/samber/slog-echo"
 	"github.com/vylet-app/go/database/client"
+	"github.com/vylet-app/go/handlers"
 	"golang.org/x/time/rate"
 )
 
@@ -138,6 +139,10 @@ func (s *Server) Run(ctx context.Context) error {
 	return nil
 }
 
+func (s *Server) Logger() *slog.Logger {
+	return s.logger
+}
+
 func (s *Server) registerHandlers() {
 	// app.vylet.actor
 	s.echo.GET("/xrpc/app.vylet.actor.getProfile", s.handleGetProfile)
@@ -146,7 +151,8 @@ func (s *Server) registerHandlers() {
 	// app.vylet.feed
 	s.echo.GET("/xrpc/app.vylet.feed.getPosts", s.handleGetPosts)
 	s.echo.GET("/xrpc/app.vylet.feed.getSubjectLikes", s.handleGetSubjectLikes)
-	s.echo.GET("/xrpc/app.vylet.feed.getActorPosts", s.handleGetActorPosts)
+	// s.echo.GET("/xrpc/app.vylet.feed.getActorPosts", s.handleGetActorPosts)
+	handlers.RegisterHandlers(s.echo, s)
 
 	// SAMPLE
 	s.echo.GET("/xrpc/authed", nil, requireAuth)
