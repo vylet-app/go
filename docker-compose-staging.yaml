@@ -1,0 +1,192 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-logs:/var/lib/zookeeper/log
+
+  kafka1:
+    image: confluentinc/cp-kafka:7.6.0
+    hostname: kafka1
+    container_name: kafka1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    volumes:
+      - kafka1-data:/var/lib/kafka/data
+
+  kafka2:
+    image: confluentinc/cp-kafka:7.6.0
+    hostname: kafka2
+    container_name: kafka2
+    depends_on:
+      - zookeeper
+    ports:
+      - "9093:9093"
+      - "9102:9102"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:29093,PLAINTEXT_HOST://localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9102
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    volumes:
+      - kafka2-data:/var/lib/kafka/data
+
+  kafka3:
+    image: confluentinc/cp-kafka:7.6.0
+    hostname: kafka3
+    container_name: kafka3
+    depends_on:
+      - zookeeper
+    ports:
+      - "9094:9094"
+      - "9103:9103"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka3:29094,PLAINTEXT_HOST://localhost:9094
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9103
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    volumes:
+      - kafka3-data:/var/lib/kafka/data
+
+  cassandra:
+    image: cassandra:5.0
+    hostname: cassandra
+    container_name: cassandra
+    ports:
+      - "9042:9042"  # CQL native transport port
+      - "7000:7000"  # Inter-node cluster communication
+      - "7199:7199"  # JMX monitoring port
+    environment:
+      CASSANDRA_CLUSTER_NAME: 'MyCluster'
+      CASSANDRA_DC: 'dc1'
+      CASSANDRA_RACK: 'rack1'
+      CASSANDRA_ENDPOINT_SNITCH: 'GossipingPropertyFileSnitch'
+      CASSANDRA_NUM_TOKENS: 256
+      # Reduce memory usage for local development
+      MAX_HEAP_SIZE: '512M'
+      HEAP_NEWSIZE: '128M'
+      # Override JVM opts to limit direct memory to fit in container
+      JVM_OPTS: '-Xms512M -Xmx512M -XX:MaxDirectMemorySize=256M'
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+    # Limit container memory (increased to accommodate heap + direct memory + overhead)
+    mem_limit: 2g
+    memswap_limit: 2g
+    # Disable swap for better performance
+    mem_swappiness: 0
+    # Allow memory locking (reduces warnings)
+    ulimits:
+      memlock: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'describe cluster'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  database:
+    build:
+      context: .
+      dockerfile: ./cmd/database/Dockerfile
+    container_name: vylet-database
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    ports:
+      - "9090:9090"
+    environment:
+      VYLET_DATABASE_LISTEN_ADDR: ":9090"
+    command: ["./database", "--cassandra-addrs", "cassandra", "--cassandra-keyspace", "vylet"]
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: ./cmd/api/Dockerfile
+    container_name: vylet-api
+    depends_on:
+      - database
+    ports:
+      - "8080:8080"
+    environment:
+      VYLET_API_LISTEN_ADDR: ":8080"
+      VYLET_API_DB_HOST: "database:9090"
+    restart: unless-stopped
+
+  firehose:
+    build:
+      context: .
+      dockerfile: ./cmd/bus/firehose/Dockerfile
+    container_name: vylet-firehose
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    environment:
+      KAFKA_FIREHOSE_WEBSOCKET_HOST: "wss://bsky.network"
+      KAFKA_FIREHOSE_BOOTSTRAP_SERVERS: "kafka1:29092,kafka2:29093,kafka3:29094"
+      KAFKA_FIREHOSE_OUTPUT_TOPIC: "firehose-events-prod"
+    restart: unless-stopped
+
+  indexer:
+    build:
+      context: .
+      dockerfile: ./cmd/indexer/Dockerfile
+    container_name: vylet-indexer
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - database
+    environment:
+      VYLET_DATABASE_HOST: "database:9090"
+      VYLET_BOOTSTRAP_SERVERS: "kafka1:29092,kafka2:29093,kafka3:29094"
+      VYLET_INDEXER_INPUT_TOPIC: "firehose-events-prod"
+      VYLET_INDEXER_CONSUMER_GROUP: "vylet-indexer-staging"
+    restart: unless-stopped
+
+volumes:
+  zookeeper-data:
+  zookeeper-logs:
+  kafka1-data:
+  kafka2-data:
+  kafka3-data:
+  cassandra-data:
