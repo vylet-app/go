@@ -10,6 +10,7 @@ import (
 	"github.com/vylet-app/go/database/client"
 	vyletdatabase "github.com/vylet-app/go/database/proto"
 	"github.com/vylet-app/go/generated/vylet"
+	"github.com/vylet-app/go/handlers"
 )
 
 type ActorGetProfileInput struct {
@@ -91,17 +92,16 @@ func (s *Server) getProfileBasic(ctx context.Context, actor string) (*vylet.Acto
 	}, nil
 }
 
-func (s *Server) handleGetProfile(e echo.Context) error {
+func (s *Server) FeedGetProfileRequiresAuth() bool {
+	return false
+}
+
+func (s *Server) HandleFeedGetProfile(e echo.Context, input *handlers.ActorGetProfileInput) (*vylet.ActorDefs_ProfileView, *echo.HTTPError) {
 	ctx := e.Request().Context()
 	logger := s.logger.With("name", "handleActorGetProfile")
 
-	var input ActorGetProfileInput
-	if err := e.Bind(&input); err != nil {
-		return ErrInternalServerErr
-	}
-
 	if input.Actor == "" {
-		return NewValidationError("actor", "actor parameter is required")
+		return nil, NewValidationError("actor", "actor parameter is required")
 	}
 
 	logger = logger.With("actor", input.Actor)
@@ -109,14 +109,14 @@ func (s *Server) handleGetProfile(e echo.Context) error {
 	profile, err := s.getProfile(ctx, input.Actor)
 	if err != nil {
 		if errors.Is(err, ErrActorNotValid) {
-			return NewValidationError("actor", "actor parameter must be a valid DID or handle")
+			return nil, NewValidationError("actor", "actor parameter must be a valid DID or handle")
 		}
 		if errors.Is(err, ErrDatabaseNotFound) {
-			return ErrNotFound
+			return nil, ErrNotFound
 		}
 		logger.Error("error getting profile", "err", err)
-		return ErrInternalServerErr
+		return nil, ErrInternalServerErr
 	}
 
-	return e.JSON(200, profile)
+	return profile, nil
 }
