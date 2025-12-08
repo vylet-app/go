@@ -137,12 +137,24 @@ func run(cmd *cli.Context) error {
 
 	for id, def := range queryDefs {
 		filename := strings.ToLower(getName(id)) + ".go"
-		if err := os.WriteFile(filename, []byte(generateHandler("get", id, def, args.PackageName)), 0644); err != nil {
+		filepath := args.OutPath + "/" + filename
+		if err := os.WriteFile(filepath, []byte(generateHandler("get", id, def, args.PackageName)), 0644); err != nil {
 			return fmt.Errorf("failed to generate file: %w", err)
 		}
 	}
 
-	generateMain(args.PackageName, args.LexgenPackageUrl, args.LexgenPackageName, queryDefs, procedureDefs)
+	for id, def := range procedureDefs {
+		filename := strings.ToLower(getName(id)) + ".go"
+		filepath := args.OutPath + "/" + filename
+		if err := os.WriteFile(filepath, []byte(generateHandler("post", id, def, args.PackageName)), 0644); err != nil {
+			return fmt.Errorf("failed to generate file: %w", err)
+		}
+	}
+
+	filepath := args.OutPath + "/" + args.PackageName + ".go"
+	if err := os.WriteFile(filepath, []byte(generateMain(args.PackageName, args.LexgenPackageUrl, args.LexgenPackageName, queryDefs, procedureDefs)), 0644); err != nil {
+		return fmt.Errorf("failed to generate file: %w", err)
+	}
 
 	return nil
 }
@@ -185,6 +197,14 @@ func getName(id string) string {
 	return second + last
 }
 
+func getTypePartsFromRef(ref string) (string, string) {
+	pts := strings.Split(ref, "#")
+	nsid := pts[0]
+	refName := pts[1]
+
+	return getName(nsid), capitalizeFirst(refName)
+}
+
 func generateHandler(method string, id string, def *lex.TypeSchema, packageName string) string {
 	name := getName(id)
 	structTagPrefix := "query"
@@ -209,15 +229,14 @@ type %sInput struct {
 
 	for paramName, subDef := range def.Parameters.Properties {
 		var typeStr = typeToTypeStr(subDef)
-
-		structTag := structTagPrefix + ":" + paramName
-
+		structTag := structTagPrefix + ":" + "\"" + paramName
 		if !slices.Contains(def.Parameters.Required, paramName) {
 			typeStr = "*" + typeStr
 			if method == "post" {
 				structTag += "omitempty"
 			}
 		}
+		structTag += "\""
 
 		contents += fmt.Sprintf("\t%s %s `%s`\n", capitalizeFirst(paramName), typeStr, structTag)
 	}
@@ -261,23 +280,17 @@ func typeToTypeStr(def *lex.TypeSchema) string {
 func generateMain(packageName, lexgenPackageUrl, lexgenPackageName string, queryDefs map[string]*lex.TypeSchema, procedureDefs map[string]*lex.TypeSchema) string {
 	queryIds := make([]string, 0, len(queryDefs))
 	procedureIds := make([]string, 0, len(procedureDefs))
-	allIds := make([]string, 0, len(queryDefs)+len(procedureDefs))
 	for id := range queryDefs {
 		queryIds = append(queryIds, id)
-		allIds = append(allIds, id)
 	}
 	for id := range procedureDefs {
 		procedureIds = append(procedureIds, id)
-		allIds = append(allIds, id)
 	}
 	sort.Slice(queryIds, func(i, j int) bool {
 		return queryIds[j] > queryIds[i]
 	})
 	sort.Slice(procedureIds, func(i, j int) bool {
 		return procedureIds[j] > procedureIds[i]
-	})
-	sort.Slice(allIds, func(i, j int) bool {
-		return allIds[j] > allIds[i]
 	})
 
 	contents := fmt.Sprintf(`// GENERATED CODE - DO NOT MODIFY
@@ -298,20 +311,43 @@ type Server interface {
 
 `, packageName, lexgenPackageName, lexgenPackageUrl)
 
-	addHandlerToInterface := func(id string) {
+	addHandlerToInterface := func(id string, refName string) {
 		name := getName(id)
 		handlerName := "Handle" + name
 		inputTypeName := name + "Input"
-		outputTypeName := lexgenPackageName + "." + name + "_Output"
 		requiresAuthName := name + "RequiresAuth"
+
+		var outputTypeName string
+		if refName != "" {
+			refNsidName, refTypeName := getTypePartsFromRef(refName)
+			outputTypeName = lexgenPackageName + "." + refNsidName + "_" + refTypeName
+		} else {
+			outputTypeName = lexgenPackageName + "." + name + "_Output"
+		}
 
 		contents += fmt.Sprintf(`	%s(e echo.Context, input *%s) (*%s, *echo.HTTPError)
 	%s() bool
 `, handlerName, inputTypeName, outputTypeName, requiresAuthName)
 	}
 
-	for _, id := range allIds {
-		addHandlerToInterface(id)
+	for _, id := range queryIds {
+		schema := queryDefs[id]
+		switch schema.Output.Schema.Type {
+		case "object":
+			addHandlerToInterface(id, "")
+		case "ref":
+			addHandlerToInterface(id, schema.Output.Schema.Ref)
+		}
+	}
+
+	for _, id := range procedureIds {
+		schema := procedureDefs[id]
+		switch schema.Output.Schema.Type {
+		case "object":
+			addHandlerToInterface(id, "")
+		case "ref":
+			addHandlerToInterface(id, schema.Output.Schema.Ref)
+		}
 	}
 
 	contents += `}
@@ -368,6 +404,5 @@ func CreateAuthRequiredMiddleware(authRequired bool) echo.MiddlewareFunc {
 }
 `
 
-	fmt.Println(contents)
 	return contents
 }
