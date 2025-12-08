@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package vyletdatabase;
+option go_package = "./;vyletdatabase";
+
+import "buf/validate/validate.proto";
+
+import "google/protobuf/timestamp.proto";
+
+service LikeService {
+  rpc CreateLike(CreateLikeRequest) returns (CreateLikeResponse);
+  rpc DeleteLike(DeleteLikeRequest) returns (DeleteLikeResponse);
+
+  rpc GetLikesBySubject(GetLikesBySubjectRequest) returns (GetLikesBySubjectResponse);
+}
+
+message Like {
+  string uri = 1 [
+    (buf.validate.field).required = true
+  ];
+  string cid = 2 [
+    (buf.validate.field).required = true
+  ];
+  string subject_uri = 3 [
+    (buf.validate.field).required = true
+  ];
+  string subject_cid = 4 [
+    (buf.validate.field).required = true
+  ];
+  string author_did = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp indexed_at = 7;
+}
+
+message CreateLikeRequest {
+  Like like = 1;
+}
+
+message CreateLikeResponse {
+  optional string error = 1;
+}
+
+message DeleteLikeRequest {
+  string uri = 1 [
+    (buf.validate.field).required = true
+  ];
+}
+
+message DeleteLikeResponse {
+  optional string error = 1;
+}
+
+message GetLikesBySubjectRequest {
+  string subject_uri = 1 [
+    (buf.validate.field).required = true
+  ];
+  int64 limit = 2;
+  optional string cursor = 3;
+}
+
+message GetLikesBySubjectResponse {
+  optional string error = 1;
+  repeated Like likes = 2;
+  int64 limit = 3;
+  optional string cursor = 4;
+}

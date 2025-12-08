@@ -13,6 +13,7 @@ type Client struct {
 	client  *grpc.ClientConn
 	Profile vyletdatabase.ProfileServiceClient
 	Post    vyletdatabase.PostServiceClient
+	Like    vyletdatabase.LikeServiceClient
 }
 
 type Args struct {
@@ -31,10 +32,14 @@ func New(args *Args) (*Client, error) {
 	}
 
 	profileClient := vyletdatabase.NewProfileServiceClient(conn)
+	postClient := vyletdatabase.NewPostServiceClient(conn)
+	likeClient := vyletdatabase.NewLikeServiceClient(conn)
 
 	client := Client{
 		client:  conn,
 		Profile: profileClient,
+		Post:    postClient,
+		Like:    likeClient,
 	}
 
 	return &client, nil

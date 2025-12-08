@@ -33,11 +33,14 @@ message Post {
   string cid = 2 [
     (buf.validate.field).required = true
   ];
-  repeated Image images = 3;
-  optional string caption = 4;
-  optional bytes facets = 5;
-  google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp indexed_at = 7;
+  string author_did = 3 [
+    (buf.validate.field).required = true
+  ];
+  repeated Image images = 4;
+  optional string caption = 5;
+  optional bytes facets = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp indexed_at = 8;
 }
 
 message CreatePostRequest {

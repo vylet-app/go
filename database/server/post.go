@@ -114,14 +114,30 @@ func (s *Server) CreatePost(ctx context.Context, req *vyletdatabase.CreatePostRe
 func (s *Server) DeletePost(ctx context.Context, req *vyletdatabase.DeletePostRequest) (*vyletdatabase.DeletePostResponse, error) {
 	logger := s.logger.With("name", "DeletePost")
 
-	if err := s.cqlSession.Query(
-		`
-		DELETE FROM posts 
+	batch := s.cqlSession.NewBatch(gocql.LoggedBatch).WithContext(ctx)
+
+	postArgs := []any{
+		req.Uri,
+	}
+
+	postQuery := `
+		DELETE FROM %s
 		WHERE
 			uri = ?
-		`,
-		req.Uri,
-	).WithContext(ctx).Exec(); err != nil {
+	`
+
+	batch.Query(fmt.Sprintf(postQuery, "posts_by_actor"), postArgs...)
+	batch.Query(fmt.Sprintf(postQuery, "posts_by_uri"), postArgs...)
+
+	imgsQuery := `
+		DELETE FROM images_by_post
+		WHERE
+			post_uri = ?
+	`
+
+	batch.Query(imgsQuery, postArgs...)
+
+	if err := s.cqlSession.ExecuteBatch(batch); err != nil {
 		logger.Error("failed to delete post", "uri", req.Uri, "err", err)
 		return &vyletdatabase.DeletePostResponse{
 			Error: helpers.ToStringPtr(err.Error()),
@@ -142,7 +158,7 @@ func (s *Server) GetPosts(ctx context.Context, req *vyletdatabase.GetPostsReques
 
 	for _, uri := range req.Uris {
 		query := `
-			SELECT uri, cid, caption, facets, created_at, indexed_at
+			SELECT uri, cid, author_did, caption, facets, created_at, indexed_at
 			FROM posts_by_uri
 			WHERE uri = ?
 		`
@@ -151,6 +167,7 @@ func (s *Server) GetPosts(ctx context.Context, req *vyletdatabase.GetPostsReques
 		if err := s.cqlSession.Query(query, uri).WithContext(ctx).Scan(
 			&post.Uri,
 			&post.Cid,
+			&post.AuthorDid,
 			&post.Caption,
 			&post.Facets,
 			&post.CreatedAt,
@@ -212,7 +229,7 @@ func (s *Server) GetPostsByActor(ctx context.Context, req *vyletdatabase.GetPost
 		cursorUri := cursorParts[1]
 
 		query = `
-			SELECT uri, cid, caption, facets, created_at, indexed_at
+			SELECT uri, cid, author_did, caption, facets, created_at, indexed_at
 			FROM posts_by_actor
 			WHERE author_did = ? AND (created_at, uri) < (?, ?)
 			ORDER BY created_at DESC, uri ASC
@@ -221,7 +238,7 @@ func (s *Server) GetPostsByActor(ctx context.Context, req *vyletdatabase.GetPost
 		args = []any{req.Did, cursorTime, cursorUri, req.Limit + 1}
 	} else {
 		query = `
-			SELECT uri, cid, caption, facets, created_at, indexed_at
+			SELECT uri, cid, author_did, caption, facets, created_at, indexed_at
 			FROM posts_by_actor
 			WHERE author_did = ?
 			ORDER BY created_at DESC, uri ASC
@@ -240,6 +257,7 @@ func (s *Server) GetPostsByActor(ctx context.Context, req *vyletdatabase.GetPost
 		if !iter.Scan(
 			&post.Uri,
 			&post.Cid,
+			&post.AuthorDid,
 			&post.Caption,
 			&post.Facets,
 			&post.CreatedAt,

@@ -111,11 +111,12 @@ type Post struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Uri           string                 `protobuf:"bytes,1,opt,name=uri,proto3" json:"uri,omitempty"`
 	Cid           string                 `protobuf:"bytes,2,opt,name=cid,proto3" json:"cid,omitempty"`
-	Images        []*Image               `protobuf:"bytes,3,rep,name=images,proto3" json:"images,omitempty"`
-	Caption       *string                `protobuf:"bytes,4,opt,name=caption,proto3,oneof" json:"caption,omitempty"`
-	Facets        []byte                 `protobuf:"bytes,5,opt,name=facets,proto3,oneof" json:"facets,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	IndexedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=indexed_at,json=indexedAt,proto3" json:"indexed_at,omitempty"`
+	AuthorDid     string                 `protobuf:"bytes,3,opt,name=author_did,json=authorDid,proto3" json:"author_did,omitempty"`
+	Images        []*Image               `protobuf:"bytes,4,rep,name=images,proto3" json:"images,omitempty"`
+	Caption       *string                `protobuf:"bytes,5,opt,name=caption,proto3,oneof" json:"caption,omitempty"`
+	Facets        []byte                 `protobuf:"bytes,6,opt,name=facets,proto3,oneof" json:"facets,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	IndexedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=indexed_at,json=indexedAt,proto3" json:"indexed_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -160,6 +161,13 @@ func (x *Post) GetUri() string {
 func (x *Post) GetCid() string {
 	if x != nil {
 		return x.Cid
+	}
+	return ""
+}
+
+func (x *Post) GetAuthorDid() string {
+	if x != nil {
+		return x.AuthorDid
 	}
 	return ""
 }
@@ -606,17 +614,19 @@ const file_post_proto_rawDesc = "" +
 	"\x04mime\x18\x06 \x01(\tR\x04mimeB\x06\n" +
 	"\x04_altB\b\n" +
 	"\x06_widthB\t\n" +
-	"\a_height\"\xb1\x02\n" +
+	"\a_height\"\xd8\x02\n" +
 	"\x04Post\x12\x18\n" +
 	"\x03uri\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x03uri\x12\x18\n" +
-	"\x03cid\x18\x02 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x03cid\x12,\n" +
-	"\x06images\x18\x03 \x03(\v2\x14.vyletdatabase.ImageR\x06images\x12\x1d\n" +
-	"\acaption\x18\x04 \x01(\tH\x00R\acaption\x88\x01\x01\x12\x1b\n" +
-	"\x06facets\x18\x05 \x01(\fH\x01R\x06facets\x88\x01\x01\x129\n" +
+	"\x03cid\x18\x02 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x03cid\x12%\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"author_did\x18\x03 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\tauthorDid\x12,\n" +
+	"\x06images\x18\x04 \x03(\v2\x14.vyletdatabase.ImageR\x06images\x12\x1d\n" +
+	"\acaption\x18\x05 \x01(\tH\x00R\acaption\x88\x01\x01\x12\x1b\n" +
+	"\x06facets\x18\x06 \x01(\fH\x01R\x06facets\x88\x01\x01\x129\n" +
 	"\n" +
-	"indexed_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tindexedAtB\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"indexed_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tindexedAtB\n" +
 	"\n" +
 	"\b_captionB\t\n" +
 	"\a_facets\"<\n" +

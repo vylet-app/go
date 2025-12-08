@@ -4,10 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"sync"
 	"time"
 
-	"github.com/bluesky-social/indigo/atproto/syntax"
 	"github.com/bluesky-social/indigo/lex/util"
 	"github.com/labstack/echo/v4"
 	"github.com/vylet-app/go/database/client"
@@ -95,70 +93,78 @@ func (s *Server) getPostViews(ctx context.Context, uris []string, viewer string)
 		return nil, ErrDatabaseNotFound
 	}
 
-	feedPostViews := make(map[string]*vylet.FeedDefs_PostView)
-	var wg sync.WaitGroup
-	var lk sync.Mutex
+	dids := make([]string, 0, len(resp.Posts))
+	addedDids := make(map[string]struct{})
 	for _, post := range resp.Posts {
-		wg.Go(func() {
-			aturi, _ := syntax.ParseATURI(post.Uri)
-			profileBasic, err := s.getProfileBasic(ctx, aturi.Authority().String())
-			if err != nil {
-				logger.Error("failed to get profile basic", "did", aturi.Authority().String(), "err", err)
-				return
-			}
+		if _, ok := addedDids[post.AuthorDid]; ok {
+			continue
+		}
+		dids = append(dids, post.AuthorDid)
+		addedDids[post.AuthorDid] = struct{}{}
+	}
 
-			postView := &vylet.FeedDefs_PostView{
-				Author:  profileBasic,
-				Caption: post.Caption,
-				Cid:     post.Cid,
-				Facets:  []*vylet.RichtextFacet{},
-				// Labels:     []*atproto.LabelDefs_Label{},
-				Media:      &vylet.FeedDefs_PostView_Media{},
-				LikeCount:  new(int64),
-				ReplyCount: new(int64),
-				Uri:        post.Uri,
-				// Viewer:     &vylet.FeedDefs_ViewerState{
-				// 	Like: new(string),
-				// },
-				CreatedAt: post.CreatedAt.AsTime().Format(time.RFC3339Nano),
-				IndexedAt: post.IndexedAt.AsTime().Format(time.RFC3339Nano),
-			}
+	profiles, err := s.getProfilesBasic(ctx, dids)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get profiles for posts: %w", err)
+	}
 
-			media := vylet.FeedDefs_PostView_Media{
-				MediaImages_View: &vylet.MediaImages_View{
-					Images: make([]*vylet.MediaImages_ViewImage, 0, len(post.Images)),
-				},
-			}
+	feedPostViews := make(map[string]*vylet.FeedDefs_PostView)
+	for _, post := range resp.Posts {
+		profileBasic, ok := profiles[post.AuthorDid]
+		if !ok {
+			logger.Warn("failed to get profile for post", "did", post.AuthorDid, "uri", post.Uri)
+			continue
+		}
 
-			for _, img := range post.Images {
-				mediaImg := &vylet.MediaImages_ViewImage{
-					Alt:       img.Alt,
-					Fullsize:  helpers.ImageCidToCdnUrl(img.Cid, "fullsize"),
-					Thumbnail: helpers.ImageCidToCdnUrl(img.Cid, "thumb"),
+		postView := &vylet.FeedDefs_PostView{
+			Author:  profileBasic,
+			Caption: post.Caption,
+			Cid:     post.Cid,
+			Facets:  []*vylet.RichtextFacet{},
+			// Labels:     []*atproto.LabelDefs_Label{},
+			Media:      &vylet.FeedDefs_PostView_Media{},
+			LikeCount:  new(int64),
+			ReplyCount: new(int64),
+			Uri:        post.Uri,
+			// Viewer:     &vylet.FeedDefs_ViewerState{
+			// 	Like: new(string),
+			// },
+			CreatedAt: post.CreatedAt.AsTime().Format(time.RFC3339Nano),
+			IndexedAt: post.IndexedAt.AsTime().Format(time.RFC3339Nano),
+		}
+
+		media := vylet.FeedDefs_PostView_Media{
+			MediaImages_View: &vylet.MediaImages_View{
+				Images: make([]*vylet.MediaImages_ViewImage, 0, len(post.Images)),
+			},
+		}
+
+		for _, img := range post.Images {
+			mediaImg := &vylet.MediaImages_ViewImage{
+				Alt:       img.Alt,
+				Fullsize:  helpers.ImageCidToCdnUrl(img.Cid, "fullsize"),
+				Thumbnail: helpers.ImageCidToCdnUrl(img.Cid, "thumb"),
+			}
+			if img.Width != nil && img.Height != nil {
+				mediaImg.AspectRatio = &vylet.MediaDefs_AspectRatio{
+					Width:  *img.Width,
+					Height: *img.Height,
 				}
-				if img.Width != nil && img.Height != nil {
-					mediaImg.AspectRatio = &vylet.MediaDefs_AspectRatio{
-						Width:  *img.Width,
-						Height: *img.Height,
-					}
-				}
-
-				media.MediaImages_View.Images = append(media.MediaImages_View.Images, mediaImg)
 			}
 
-			if post.Facets != nil {
-				var facets []*vylet.RichtextFacet
-				if err := json.Unmarshal(post.Facets, &facets); err != nil {
-					logger.Error("failed to unmarshal post facets", "uri", post.Uri, "err", err)
-					return
-				}
-				postView.Facets = facets
-			}
+			media.MediaImages_View.Images = append(media.MediaImages_View.Images, mediaImg)
+		}
 
-			lk.Lock()
-			defer lk.Unlock()
-			feedPostViews[post.Uri] = postView
-		})
+		if post.Facets != nil {
+			var facets []*vylet.RichtextFacet
+			if err := json.Unmarshal(post.Facets, &facets); err != nil {
+				logger.Error("failed to unmarshal post facets", "uri", post.Uri, "err", err)
+				continue
+			}
+			postView.Facets = facets
+		}
+
+		feedPostViews[post.Uri] = postView
 	}
 
 	return feedPostViews, nil
@@ -198,5 +204,17 @@ func (s *Server) handleGetPosts(e echo.Context) error {
 		return ErrNotFound
 	}
 
-	return e.JSON(200, postViews)
+	orderedPostViews := make([]*vylet.FeedDefs_PostView, 0, len(postViews))
+	for _, uri := range input.Uris {
+		postView, ok := postViews[uri]
+		if !ok {
+			logger.Warn("failed to find post for uri", "uri", uri)
+			continue
+		}
+		orderedPostViews = append(orderedPostViews, postView)
+	}
+
+	return e.JSON(200, vylet.FeedGetPosts_Output{
+		Posts: orderedPostViews,
+	})
 }

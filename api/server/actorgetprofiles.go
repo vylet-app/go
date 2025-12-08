@@ -153,5 +153,7 @@ func (s *Server) handleGetProfiles(e echo.Context) error {
 		orderedProfiles = append(orderedProfiles, profile)
 	}
 
-	return e.JSON(200, profiles)
+	return e.JSON(200, vylet.ActorGetProfiles_Output{
+		Profiles: orderedProfiles,
+	})
 }
