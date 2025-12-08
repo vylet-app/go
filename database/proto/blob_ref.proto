@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package vyletdatabase;
+option go_package = "./;vyletdatabase";
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+service BlobRefService {
+  rpc GetBlobRef(GetBlobRefRequest) returns (GetBlobRefResponse);
+  rpc CreateBlobRef(CreateBlobRefRequest) returns (CreateBlobRefResponse);
+  rpc UpdateBlobRef(UpdateBlobRefRequest) returns (UpdateBlobRefResponse);
+}
+
+message BlobRef {
+  string did = 1 [(buf.validate.field).required = true];
+  string cid = 2 [(buf.validate.field).required = true];
+  google.protobuf.Timestamp first_seen_at = 3;
+  optional google.protobuf.Timestamp processed_at = 4;
+  optional google.protobuf.Timestamp updated_at = 5;
+  bool taken_down = 6;
+  optional string takedown_reason = 7;
+  optional google.protobuf.Timestamp taken_down_at = 8;
+  repeated string tags = 9;
+}
+
+message GetBlobRefRequest {
+  string did = 1 [(buf.validate.field).required = true];
+  string cid = 2 [(buf.validate.field).required = true];
+}
+
+message GetBlobRefResponse {
+  optional string error = 1;
+  optional BlobRef blob_ref = 2;
+}
+
+message CreateBlobRefRequest {
+  BlobRef blob_ref = 1;
+}
+
+message CreateBlobRefResponse {
+  optional string error = 1;
+}
+
+message UpdateBlobRefRequest {
+  BlobRef blob_ref = 1;
+}
+
+message UpdateBlobRefResponse {
+  optional string error = 1;
+}

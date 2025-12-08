@@ -45,6 +45,9 @@ run-firehose:
 run-indexer:
     go run ./cmd/indexer
 
+run-cdn:
+    go run ./cmd/cdn
+
 run-api:
     go run ./cmd/api
 
