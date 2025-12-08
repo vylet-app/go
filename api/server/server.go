@@ -144,18 +144,7 @@ func (s *Server) Logger() *slog.Logger {
 }
 
 func (s *Server) registerHandlers() {
-	// app.vylet.actor
-	s.echo.GET("/xrpc/app.vylet.actor.getProfile", s.handleGetProfile)
-	s.echo.GET("/xrpc/app.vylet.actor.getProfiles", s.handleGetProfiles)
-
-	// app.vylet.feed
-	s.echo.GET("/xrpc/app.vylet.feed.getPosts", s.handleGetPosts)
-	s.echo.GET("/xrpc/app.vylet.feed.getSubjectLikes", s.handleGetSubjectLikes)
-	// s.echo.GET("/xrpc/app.vylet.feed.getActorPosts", s.handleGetActorPosts)
 	handlers.RegisterHandlers(s.echo, s)
-
-	// SAMPLE
-	s.echo.GET("/xrpc/authed", nil, requireAuth)
 }
 
 func (s *Server) errorHandler(err error, c echo.Context) {
@@ -273,18 +262,6 @@ func (s *Server) didAuthMiddleware() echo.MiddlewareFunc {
 
 			return next(e)
 		}
-	}
-}
-
-func requireAuth(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(e echo.Context) error {
-		viewer := getViewer(e)
-
-		if viewer == "" {
-			return ErrUnauthorized
-		}
-
-		return next(e)
 	}
 }
 

@@ -9,11 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 	vyletdatabase "github.com/vylet-app/go/database/proto"
 	"github.com/vylet-app/go/generated/vylet"
+	"github.com/vylet-app/go/handlers"
 )
-
-type ActorGetProfilesInput struct {
-	Dids []string `query:"dids"`
-}
 
 func (s *Server) getProfiles(ctx context.Context, dids []string) (map[string]*vylet.ActorDefs_ProfileView, error) {
 	resp, err := s.client.Profile.GetProfiles(ctx, &vyletdatabase.GetProfilesRequest{
@@ -114,21 +111,20 @@ func (s *Server) getProfilesBasic(ctx context.Context, dids []string) (map[strin
 	return profiles, nil
 }
 
-func (s *Server) handleGetProfiles(e echo.Context) error {
-	ctx := e.Request().Context()
-	logger := s.logger.With("name", "handleActorGetProfiles")
+func (s *Server) ActorGetProfilesRequiresAuth() bool {
+	return false
+}
 
-	var input ActorGetProfilesInput
-	if err := e.Bind(&input); err != nil {
-		return ErrInternalServerErr
-	}
+func (s *Server) HandleActorGetProfiles(e echo.Context, input *handlers.ActorGetProfilesInput) (*vylet.ActorGetProfiles_Output, *echo.HTTPError) {
+	ctx := e.Request().Context()
+	logger := s.logger.With("name", "HandleActorGetProfiles")
 
 	if len(input.Dids) == 0 {
-		return NewValidationError("dids", "at least one DID is required")
+		return nil, NewValidationError("dids", "at least one DID is required")
 	}
 
 	if len(input.Dids) > 25 {
-		return NewValidationError("dids", "at most 25 DIDs may be supplied")
+		return nil, NewValidationError("dids", "at most 25 DIDs may be supplied")
 	}
 
 	logger = logger.With("dids", input.Dids)
@@ -136,11 +132,11 @@ func (s *Server) handleGetProfiles(e echo.Context) error {
 	profiles, err := s.getProfiles(ctx, input.Dids)
 	if err != nil {
 		logger.Error("error getting profiles", "err", err)
-		return ErrInternalServerErr
+		return nil, ErrInternalServerErr
 	}
 
 	if len(profiles) == 0 {
-		return ErrNotFound
+		return nil, ErrNotFound
 	}
 
 	orderedProfiles := make([]*vylet.ActorDefs_ProfileView, len(profiles))
@@ -153,7 +149,7 @@ func (s *Server) handleGetProfiles(e echo.Context) error {
 		orderedProfiles = append(orderedProfiles, profile)
 	}
 
-	return e.JSON(200, vylet.ActorGetProfiles_Output{
+	return &vylet.ActorGetProfiles_Output{
 		Profiles: orderedProfiles,
-	})
+	}, nil
 }

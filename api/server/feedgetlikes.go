@@ -8,14 +8,9 @@ import (
 	"github.com/labstack/echo/v4"
 	vyletdatabase "github.com/vylet-app/go/database/proto"
 	"github.com/vylet-app/go/generated/vylet"
+	"github.com/vylet-app/go/handlers"
 	"github.com/vylet-app/go/internal/helpers"
 )
-
-type GetFeedLikesBySubjectInput struct {
-	Uri    string  `query:"uri"`
-	Limit  *int64  `query:"limit"`
-	Cursor *string `query:"cursor"`
-}
 
 func (s *Server) getLikesBySubject(ctx context.Context, subjectUri string, limit int64, cursor *string) ([]*vylet.FeedGetSubjectLikes_Like, *string, error) {
 	logger := s.logger.With("name", "getLikesBySubject", "uri", subjectUri)
@@ -57,23 +52,21 @@ func (s *Server) getLikesBySubject(ctx context.Context, subjectUri string, limit
 	return likes, resp.Cursor, nil
 }
 
-func (s *Server) handleGetSubjectLikes(e echo.Context) error {
+func (s *Server) FeedGetSubjectLikesRequiresAuth() bool {
+	return false
+}
+
+func (s *Server) HandleFeedGetSubjectLikes(e echo.Context, input *handlers.FeedGetSubjectLikesInput) (*vylet.FeedGetSubjectLikes_Output, *echo.HTTPError) {
 	ctx := e.Request().Context()
 
-	logger := s.logger.With("name", "handleGetSubjectLikes")
-
-	var input GetFeedLikesBySubjectInput
-	if err := e.Bind(&input); err != nil {
-		logger.Error("failed to bind request", "err", err)
-		return ErrInternalServerErr
-	}
+	logger := s.logger.With("name", "HandleFeedGetSubjectLikes")
 
 	if input.Uri == "" {
-		return NewValidationError("uri", "URI must be provided")
+		return nil, NewValidationError("uri", "URI must be provided")
 	}
 
 	if input.Limit != nil && (*input.Limit < 1 || *input.Limit > 100) {
-		return NewValidationError("limit", "limit must be between 1 and 100")
+		return nil, NewValidationError("limit", "limit must be between 1 and 100")
 	} else if input.Limit == nil {
 		input.Limit = helpers.ToInt64Ptr(25)
 	}
@@ -83,11 +76,11 @@ func (s *Server) handleGetSubjectLikes(e echo.Context) error {
 	likes, cursor, err := s.getLikesBySubject(ctx, input.Uri, *input.Limit, input.Cursor)
 	if err != nil {
 		logger.Error("failed to get subject likes", "err", err)
-		return ErrInternalServerErr
+		return nil, ErrInternalServerErr
 	}
 
-	return e.JSON(200, vylet.FeedGetSubjectLikes_Output{
+	return &vylet.FeedGetSubjectLikes_Output{
 		Likes:  likes,
 		Cursor: cursor,
-	})
+	}, nil
 }

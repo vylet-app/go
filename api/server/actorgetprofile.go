@@ -92,13 +92,13 @@ func (s *Server) getProfileBasic(ctx context.Context, actor string) (*vylet.Acto
 	}, nil
 }
 
-func (s *Server) FeedGetProfileRequiresAuth() bool {
+func (s *Server) ActorGetProfileRequiresAuth() bool {
 	return false
 }
 
-func (s *Server) HandleFeedGetProfile(e echo.Context, input *handlers.ActorGetProfileInput) (*vylet.ActorDefs_ProfileView, *echo.HTTPError) {
+func (s *Server) HandleActorGetProfile(e echo.Context, input *handlers.ActorGetProfileInput) (*vylet.ActorDefs_ProfileView, *echo.HTTPError) {
 	ctx := e.Request().Context()
-	logger := s.logger.With("name", "handleActorGetProfile")
+	logger := s.logger.With("name", "HandleActorGetProfile")
 
 	if input.Actor == "" {
 		return nil, NewValidationError("actor", "actor parameter is required")
