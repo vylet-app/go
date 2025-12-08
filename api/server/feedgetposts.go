@@ -213,8 +213,9 @@ type GetFeedPostsInput struct {
 
 func (s *Server) handleGetPosts(e echo.Context) error {
 	ctx := e.Request().Context()
+	viewer := getViewer(e)
 
-	logger := s.logger.With("name", "handleGetPost")
+	logger := s.logger.With("name", "handleGetPost", "viewer", viewer)
 
 	var input GetFeedPostsInput
 	if err := e.Bind(&input); err != nil {
@@ -235,7 +236,7 @@ func (s *Server) handleGetPosts(e echo.Context) error {
 		return NewValidationError("uris", "all URIs must be valid AT-URIs")
 	}
 
-	postViews, err := s.getPostViews(ctx, input.Uris, "")
+	postViews, err := s.getPostViews(ctx, input.Uris, viewer)
 	if err != nil {
 		logger.Error("failed to get posts", "err", err)
 		return ErrInternalServerErr
@@ -268,8 +269,9 @@ type GetFeedActorPostsInput struct {
 
 func (s *Server) handleGetActorPosts(e echo.Context) error {
 	ctx := e.Request().Context()
+	viewer := getViewer(e)
 
-	logger := s.logger.With("name", "handleGetActorPosts")
+	logger := s.logger.With("name", "handleGetActorPosts", "viewer", viewer)
 
 	var input GetFeedActorPostsInput
 	if err := e.Bind(&input); err != nil {
@@ -304,7 +306,7 @@ func (s *Server) handleGetActorPosts(e echo.Context) error {
 		return ErrInternalServerErr
 	}
 
-	postViews, err := s.postsToPostViews(ctx, resp.Posts, "") // TODO: set viewer
+	postViews, err := s.postsToPostViews(ctx, resp.Posts, viewer)
 	if err != nil {
 		s.logger.Error("failed to get post views", "err", err)
 		return ErrInternalServerErr
