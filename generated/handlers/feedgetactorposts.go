@@ -10,9 +10,9 @@ import (
 )
 
 type FeedGetActorPostsInput struct {
-	Actor string `query:"actor"`
+	Actor  string  `query:"actor"`
 	Cursor *string `query:"cursor"`
-	Limit *int64 `query:"limit"`
+	Limit  *int64  `query:"limit"`
 }
 
 func (h *Handlers) HandleFeedGetActorPosts(e echo.Context) error {
