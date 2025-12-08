@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/bluesky-social/indigo/atproto/syntax"
 )
@@ -14,17 +13,13 @@ var (
 	ErrActorNotValid      = errors.New("actor was not a valid did or handle")
 )
 
-func (s *Server) handleFromDid(ctx context.Context, did string) (string, error) {
-	doc, err := s.passport.FetchDoc(ctx, did)
+func (s *Server) handleFromDid(ctx context.Context, did syntax.DID) (syntax.Handle, error) {
+	doc, err := s.directory.LookupDID(ctx, did)
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch did doc: %w", err)
 	}
-	for _, aka := range doc.AlsoKnownAs {
-		if after, ok := strings.CutPrefix(aka, "at://"); ok {
-			return after, nil
-		}
-	}
-	return "", ErrAtHandleNotPresent
+
+	return doc.Handle, nil
 }
 
 // Given either a valid DID or handle, finds both the DID and handle for said actor and returns them.
@@ -32,36 +27,36 @@ func (s *Server) handleFromDid(ctx context.Context, did string) (string, error) 
 func (s *Server) fetchDidHandleFromActor(ctx context.Context, actor string) (string, string, error) {
 	logger := s.logger.With("name", "fetchDidHandleForActor", "actor", actor)
 
-	var did string
-	var handle string
+	var did *syntax.DID
+	var handle *syntax.Handle
 	if parsed, err := syntax.ParseDID(actor); err == nil {
-		did = parsed.String()
+		did = &parsed
 	} else if parsed, err := syntax.ParseHandle(actor); err == nil {
-		handle = parsed.String()
+		handle = &parsed
 	}
 
 	logger = logger.With("did", did, "handle", handle)
 
-	if did == "" && handle == "" {
+	if did == nil && handle == nil {
 		logger.Error("actor was not a valid did or handle")
 		return "", "", ErrActorNotValid
 	}
 
-	if did != "" {
-		maybeHandle, err := s.handleFromDid(ctx, did)
+	if did != nil {
+		maybeHandle, err := s.handleFromDid(ctx, *did)
 		if err != nil {
 			logger.Error("error getting handle", "err", err)
 			return "", "", err
 		}
-		handle = maybeHandle
-	} else if handle != "" {
-		maybeDid, err := s.passport.ResolveHandle(ctx, handle)
+		handle = &maybeHandle
+	} else if handle != nil {
+		maybeDid, err := s.directory.ResolveHandle(ctx, *handle)
 		if err != nil {
 			logger.Error("error getting did", "err", err)
 			return "", "", err
 		}
-		did = maybeDid
+		did = &maybeDid
 	}
 
-	return did, handle, nil
+	return did.String(), handle.String(), nil
 }
