@@ -34,7 +34,11 @@ func (s *Server) HandleGraphGetActorFollowers(e echo.Context, input *handlers.Gr
 		return nil, ErrInternalServerErr
 	}
 
-	resp, err := s.client.Follow.GetFollowersByActor(ctx, &vyletdatabase.GetFollowersByActorRequest{Did: did})
+	resp, err := s.client.Follow.GetFollowersByActor(ctx, &vyletdatabase.GetFollowersByActorRequest{
+		Did:    did,
+		Limit:  *input.Limit,
+		Cursor: input.Cursor,
+	})
 	if err != nil {
 		logger.Error("error getting followers", "err", err)
 		return nil, ErrInternalServerErr
