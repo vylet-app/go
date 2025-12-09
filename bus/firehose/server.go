@@ -113,10 +113,9 @@ func (kf *KafkaFirehose) Run(ctx context.Context) error {
 		u.RawQuery = fmt.Sprintf("cursor=%d", *cursor)
 	}
 
-	// run the consumer in a goroutine and
 	shutdownConsumer := make(chan struct{}, 1)
 	consumerShutdown := make(chan struct{}, 1)
-
+	consumerErr := make(chan error, 1)
 	go func() {
 		logger := kf.logger.With("component", "consumer")
 
@@ -141,10 +140,19 @@ func (kf *KafkaFirehose) Run(ctx context.Context) error {
 		go func() {
 			if err := events.HandleRepoStream(ctx, conn, scheduler, logger); err != nil {
 				logger.Error("error handling repo stream", "err", err)
+				consumerErr <- err
+				return
 			}
+			consumerErr <- nil
 		}()
 
-		<-shutdownConsumer
+		select {
+		case <-shutdownConsumer:
+		case err := <-consumerErr:
+			if err != nil {
+				logger.Error("consumer encountered an error", "err", err)
+			}
+		}
 
 		if err := conn.Close(); err != nil {
 			logger.Error("error closing websocket", "err", err)
