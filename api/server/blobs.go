@@ -12,8 +12,8 @@ import (
 )
 
 type MediaGetBlobInput struct {
-	Did string `query:"did"`
-	Cid string `query:"cid"`
+	Did string `param:"did"`
+	Cid string `param:"cid"`
 }
 
 func (s *Server) handleGetBlob(e echo.Context) error {

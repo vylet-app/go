@@ -147,7 +147,7 @@ func (s *Server) registerHandlers() {
 	handlers.RegisterHandlers(s.echo, s)
 
 	// app.vylet.media
-	s.echo.GET("/xrpc/app.vylet.media.getBlob", s.handleGetBlob)
+	s.echo.GET("/xrpc/app.vylet.media.getBlob/:did/:cid", s.handleGetBlob)
 }
 
 func (s *Server) errorHandler(err error, c echo.Context) {
