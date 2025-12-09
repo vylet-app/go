@@ -21,8 +21,9 @@ func ToInt64Ptr(num int64) *int64 {
 	return &num
 }
 
-func ImageCidToCdnUrl(cid string, size string) string {
-	return fmt.Sprintf("https://cdn.vylet.app/%s/%s@png", cid, size)
+func ImageCidToCdnUrl(host, size, did, cid string) string {
+	// http://localhost:9525/img/fullsize/plain/did:plc:oisofpd7lj26yvgiivf3lxsi/bafkreiesoy5p2kcc73o7qv4iywlxnzssdjivvsoa3ivhnaqy2uyjgmmnbq@jpeg
+	return fmt.Sprintf("%s/img/%s/plain/%s/%s@jpeg", host, size, did, cid)
 }
 
 func StrToCid(str string) cid.Cid {

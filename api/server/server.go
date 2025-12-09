@@ -31,12 +31,15 @@ type Server struct {
 	echo      *echo.Echo
 	client    *client.Client
 	directory *identity.CacheDirectory
+
+	cdnHost string
 }
 
 type Args struct {
-	Logger *slog.Logger
-	Addr   string
-	DbHost string
+	Logger  *slog.Logger
+	Addr    string
+	DbHost  string
+	CdnHost string
 }
 
 func New(args *Args) (*Server, error) {
@@ -83,6 +86,8 @@ func New(args *Args) (*Server, error) {
 		httpd:     &httpd,
 		client:    client,
 		directory: &directory,
+
+		cdnHost: args.CdnHost,
 	}
 
 	server.echo.HTTPErrorHandler = server.errorHandler
