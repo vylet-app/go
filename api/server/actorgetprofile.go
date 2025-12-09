@@ -45,13 +45,7 @@ func (s *Server) getProfile(ctx context.Context, actor string) (*vylet.ActorDefs
 		Pronouns:    resp.Profile.Pronouns,
 		CreatedAt:   resp.Profile.CreatedAt.AsTime().Format(time.RFC3339Nano),
 		IndexedAt:   resp.Profile.IndexedAt.AsTime().Format(time.RFC3339Nano),
-		Viewer: &vylet.ActorDefs_ViewerState{
-			BlockedBy:  new(bool),
-			Blocking:   new(string),
-			FollowedBy: new(string),
-			Following:  new(string),
-			Muted:      new(bool),
-		},
+		Viewer:      &vylet.ActorDefs_ViewerState{},
 	}, nil
 }
 
@@ -82,13 +76,7 @@ func (s *Server) getProfileBasic(ctx context.Context, actor string) (*vylet.Acto
 		Pronouns:    resp.Profile.Pronouns,
 		CreatedAt:   resp.Profile.CreatedAt.AsTime().Format(time.RFC3339Nano),
 		IndexedAt:   resp.Profile.IndexedAt.AsTime().Format(time.RFC3339Nano),
-		Viewer: &vylet.ActorDefs_ViewerState{
-			BlockedBy:  new(bool),
-			Blocking:   new(string),
-			FollowedBy: new(string),
-			Following:  new(string),
-			Muted:      new(bool),
-		},
+		Viewer:      &vylet.ActorDefs_ViewerState{},
 	}, nil
 }
 

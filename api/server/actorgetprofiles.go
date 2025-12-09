@@ -47,13 +47,7 @@ func (s *Server) getProfiles(ctx context.Context, dids []string) (map[string]*vy
 				Pronouns:    profile.Pronouns,
 				CreatedAt:   profile.CreatedAt.AsTime().Format(time.RFC3339Nano),
 				IndexedAt:   profile.IndexedAt.AsTime().Format(time.RFC3339Nano),
-				Viewer: &vylet.ActorDefs_ViewerState{
-					BlockedBy:  new(bool),
-					Blocking:   new(string),
-					FollowedBy: new(string),
-					Following:  new(string),
-					Muted:      new(bool),
-				},
+				Viewer:      &vylet.ActorDefs_ViewerState{},
 			}
 		})
 	}
@@ -96,13 +90,7 @@ func (s *Server) getProfilesBasic(ctx context.Context, dids []string) (map[strin
 				Pronouns:    profile.Pronouns,
 				CreatedAt:   profile.CreatedAt.AsTime().Format(time.RFC3339Nano),
 				IndexedAt:   profile.IndexedAt.AsTime().Format(time.RFC3339Nano),
-				Viewer: &vylet.ActorDefs_ViewerState{
-					BlockedBy:  new(bool),
-					Blocking:   new(string),
-					FollowedBy: new(string),
-					Following:  new(string),
-					Muted:      new(bool),
-				},
+				Viewer:      &vylet.ActorDefs_ViewerState{},
 			}
 		})
 	}

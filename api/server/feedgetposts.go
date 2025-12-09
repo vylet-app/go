@@ -164,11 +164,9 @@ func (s *Server) postsToPostViews(ctx context.Context, posts map[string]*vyletda
 			LikeCount:  counts.Likes,
 			ReplyCount: counts.Replies,
 			Uri:        post.Uri,
-			// Viewer:     &vylet.FeedDefs_ViewerState{
-			// 	Like: new(string),
-			// },
-			CreatedAt: post.CreatedAt.AsTime().Format(time.RFC3339Nano),
-			IndexedAt: post.IndexedAt.AsTime().Format(time.RFC3339Nano),
+			Viewer:     &vylet.FeedDefs_ViewerState{},
+			CreatedAt:  post.CreatedAt.AsTime().Format(time.RFC3339Nano),
+			IndexedAt:  post.IndexedAt.AsTime().Format(time.RFC3339Nano),
 		}
 
 		media := vylet.FeedDefs_PostView_Media{
