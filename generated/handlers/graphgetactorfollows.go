@@ -11,6 +11,8 @@ import (
 
 type GraphGetActorFollowsInput struct {
 	Actor string `query:"actor"`
+	Cursor *string `query:"cursor"`
+	Limit *int64 `query:"limit"`
 }
 
 func (h *Handlers) HandleGraphGetActorFollows(e echo.Context) error {

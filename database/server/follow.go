@@ -340,7 +340,7 @@ func (s *Server) GetFollowersByActor(ctx context.Context, req *vyletdatabase.Get
 	}
 
 	return &vyletdatabase.GetFollowersByActorResponse{
-		Follows: follows,
-		Cursor:  nextCursor,
+		Followers: follows,
+		Cursor:    nextCursor,
 	}, nil
 }

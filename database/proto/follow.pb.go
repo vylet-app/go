@@ -474,7 +474,7 @@ func (x *GetFollowersByActorRequest) GetCursor() string {
 type GetFollowersByActorResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Error         *string                `protobuf:"bytes,1,opt,name=error,proto3,oneof" json:"error,omitempty"`
-	Follows       []*Follow              `protobuf:"bytes,2,rep,name=follows,proto3" json:"follows,omitempty"`
+	Followers     []*Follow              `protobuf:"bytes,2,rep,name=followers,proto3" json:"followers,omitempty"`
 	Limit         int64                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
 	Cursor        *string                `protobuf:"bytes,4,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -518,9 +518,9 @@ func (x *GetFollowersByActorResponse) GetError() string {
 	return ""
 }
 
-func (x *GetFollowersByActorResponse) GetFollows() []*Follow {
+func (x *GetFollowersByActorResponse) GetFollowers() []*Follow {
 	if x != nil {
-		return x.Follows
+		return x.Followers
 	}
 	return nil
 }
@@ -581,10 +581,10 @@ const file_follow_proto_rawDesc = "" +
 	"\x03did\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x03did\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x03R\x05limit\x12\x1b\n" +
 	"\x06cursor\x18\x03 \x01(\tH\x00R\x06cursor\x88\x01\x01B\t\n" +
-	"\a_cursor\"\xb1\x01\n" +
+	"\a_cursor\"\xb5\x01\n" +
 	"\x1bGetFollowersByActorResponse\x12\x19\n" +
-	"\x05error\x18\x01 \x01(\tH\x00R\x05error\x88\x01\x01\x12/\n" +
-	"\afollows\x18\x02 \x03(\v2\x15.vyletdatabase.FollowR\afollows\x12\x14\n" +
+	"\x05error\x18\x01 \x01(\tH\x00R\x05error\x88\x01\x01\x123\n" +
+	"\tfollowers\x18\x02 \x03(\v2\x15.vyletdatabase.FollowR\tfollowers\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x03R\x05limit\x12\x1b\n" +
 	"\x06cursor\x18\x04 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
 	"\x06_errorB\t\n" +
@@ -626,7 +626,7 @@ var file_follow_proto_depIdxs = []int32{
 	9, // 1: vyletdatabase.Follow.indexed_at:type_name -> google.protobuf.Timestamp
 	0, // 2: vyletdatabase.CreateFollowRequest.follow:type_name -> vyletdatabase.Follow
 	0, // 3: vyletdatabase.GetFollowsByActorResponse.follows:type_name -> vyletdatabase.Follow
-	0, // 4: vyletdatabase.GetFollowersByActorResponse.follows:type_name -> vyletdatabase.Follow
+	0, // 4: vyletdatabase.GetFollowersByActorResponse.followers:type_name -> vyletdatabase.Follow
 	1, // 5: vyletdatabase.FollowService.CreateFollow:input_type -> vyletdatabase.CreateFollowRequest
 	3, // 6: vyletdatabase.FollowService.DeleteFollow:input_type -> vyletdatabase.DeleteFollowRequest
 	5, // 7: vyletdatabase.FollowService.GetFollowsByActor:input_type -> vyletdatabase.GetFollowsByActorRequest

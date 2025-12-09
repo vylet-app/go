@@ -73,7 +73,7 @@ message GetFollowersByActorRequest {
 
 message GetFollowersByActorResponse {
   optional string error = 1;
-  repeated Follow follows = 2;
+  repeated Follow followers = 2;
   int64 limit = 3;
   optional string cursor = 4;
 }

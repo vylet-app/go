@@ -12,17 +12,24 @@ import (
 
 // GraphGetActorFollows_Output is the output of a app.vylet.graph.getActorFollows call.
 type GraphGetActorFollows_Output struct {
+	Cursor   *string                  `json:"cursor,omitempty" cborgen:"cursor,omitempty"`
 	Profiles []*ActorDefs_ProfileView `json:"profiles" cborgen:"profiles"`
 }
 
 // GraphGetActorFollows calls the XRPC method "app.vylet.graph.getActorFollows".
 //
 // actor: Handle or DID of account to fetch the follows of.
-func GraphGetActorFollows(ctx context.Context, c lexutil.LexClient, actor string) (*GraphGetActorFollows_Output, error) {
+func GraphGetActorFollows(ctx context.Context, c lexutil.LexClient, actor string, cursor string, limit int64) (*GraphGetActorFollows_Output, error) {
 	var out GraphGetActorFollows_Output
 
 	params := map[string]interface{}{}
 	params["actor"] = actor
+	if cursor != "" {
+		params["cursor"] = cursor
+	}
+	if limit != 0 {
+		params["limit"] = limit
+	}
 	if err := c.LexDo(ctx, lexutil.Query, "", "app.vylet.graph.getActorFollows", params, nil, &out); err != nil {
 		return nil, err
 	}
