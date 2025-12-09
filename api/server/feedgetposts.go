@@ -178,7 +178,7 @@ func (s *Server) postsToPostViews(ctx context.Context, posts map[string]*vyletda
 			mediaImg := &vylet.MediaImages_ViewImage{
 				Alt:       img.Alt,
 				Fullsize:  helpers.ImageCidToCdnUrl(s.cdnHost, "fullsize", post.AuthorDid, img.Cid),
-				Thumbnail: helpers.ImageCidToCdnUrl(s.cdnHost, "thumbnail", post.AuthorDid, img.Cid),
+				Thumbnail: helpers.ImageCidToCdnUrl(s.cdnHost, "thumb", post.AuthorDid, img.Cid),
 			}
 			if img.Width != nil && img.Height != nil {
 				mediaImg.AspectRatio = &vylet.MediaDefs_AspectRatio{
