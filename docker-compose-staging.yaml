@@ -117,7 +117,7 @@ services:
     environment:
       VYLET_API_LISTEN_ADDR: ":8080"
       VYLET_API_DB_HOST: "localhost:9090"
-      VYLET_API_CDN_HOST: "https://img.cdn.vylet.app"
+      VYLET_API_CDN_HOST: "https://img.cdn.staging.vylet.app"
     restart: unless-stopped
 
   firehose:
