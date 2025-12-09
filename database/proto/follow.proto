@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package vyletdatabase;
+option go_package = "./;vyletdatabase";
+
+import "buf/validate/validate.proto";
+
+import "google/protobuf/timestamp.proto";
+
+service FollowService {
+  rpc CreateFollow(CreateFollowRequest) returns (CreateFollowResponse);
+  rpc DeleteFollow(DeleteFollowRequest) returns (DeleteFollowResponse);
+
+  rpc GetFollowsByActor(GetFollowsByActorRequest) returns (GetFollowsByActorResponse);
+  rpc GetFollowersByActor(GetFollowersByActorRequest) returns (GetFollowersByActorResponse);
+
+  rpc GetFollowForAuthorSubject(GetFollowForAuthorSubjectRequest) returns (GetFollowForAuthorSubjectResponse);
+}
+
+message Follow {
+  string uri = 1 [
+    (buf.validate.field).required = true
+  ];
+  string cid = 2 [
+    (buf.validate.field).required = true
+  ];
+  string subject_did = 3 [
+    (buf.validate.field).required = true
+  ];
+  string author_did = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp indexed_at = 7;
+}
+
+message CreateFollowRequest {
+  Follow follow = 1;
+}
+
+message CreateFollowResponse {
+  optional string error = 1;
+}
+
+message DeleteFollowRequest {
+  string uri = 1 [
+    (buf.validate.field).required = true
+  ];
+}
+
+message DeleteFollowResponse {
+  optional string error = 1;
+}
+
+message GetFollowsByActorRequest {
+  string did = 1 [
+    (buf.validate.field).required = true
+  ];
+  int64 limit = 2;
+  optional string cursor = 3;
+}
+
+message GetFollowsByActorResponse {
+  optional string error = 1;
+  repeated Follow follows = 2;
+  int64 limit = 3;
+  optional string cursor = 4;
+}
+
+message GetFollowersByActorRequest {
+  string did = 1 [
+    (buf.validate.field).required = true
+  ];
+  int64 limit = 2;
+  optional string cursor = 3;
+}
+
+message GetFollowersByActorResponse {
+  optional string error = 1;
+  repeated Follow followers = 2;
+  int64 limit = 3;
+  optional string cursor = 4;
+}
+
+message GetFollowForAuthorSubjectRequest {
+  string author_did = 1 [
+    (buf.validate.field).required = true
+  ];
+  string subject_did = 2 [
+    (buf.validate.field).required = true
+  ];
+}
+
+message GetFollowForAuthorSubjectResponse {
+  optional string error = 1;
+  optional Follow follow = 2;
+}

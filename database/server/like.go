@@ -46,6 +46,7 @@ func (s *Server) CreateLike(ctx context.Context, req *vyletdatabase.CreateLikeRe
 	batch.Query(fmt.Sprintf(likeQuery, "likes_by_subject"), likeArgs...)
 	batch.Query(fmt.Sprintf(likeQuery, "likes_by_actor"), likeArgs...)
 	batch.Query(fmt.Sprintf(likeQuery, "likes_by_uri"), likeArgs...)
+	batch.Query(fmt.Sprintf(likeQuery, "likes_by_actor_subject"), likeArgs...)
 
 	if err := s.cqlSession.ExecuteBatch(batch); err != nil {
 		logger.Error("failed to create like", "uri", req.Like.Uri, "err", err)
@@ -111,6 +112,11 @@ func (s *Server) DeleteLike(ctx context.Context, req *vyletdatabase.DeleteLikeRe
 		DELETE FROM likes_by_actor
 		WHERE author_did = ? AND created_at = ? AND uri = ?
 	`, authorDid, createdAt, req.Uri)
+
+	batch.Query(`
+		DELETE FROM likes_by_actor_subject
+		WHERE author_did = ? AND subject_uri = ?
+		`, authorDid, subjectUri)
 
 	if err := s.cqlSession.ExecuteBatch(batch); err != nil {
 		logger.Error("failed to delete like", "uri", req.Uri, "err", err)

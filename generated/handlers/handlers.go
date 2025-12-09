@@ -24,6 +24,10 @@ type Server interface {
 	FeedGetPostsRequiresAuth() bool
 	HandleFeedGetSubjectLikes(e echo.Context, input *FeedGetSubjectLikesInput) (*vylet.FeedGetSubjectLikes_Output, *echo.HTTPError)
 	FeedGetSubjectLikesRequiresAuth() bool
+	HandleGraphGetActorFollowers(e echo.Context, input *GraphGetActorFollowersInput) (*vylet.GraphGetActorFollowers_Output, *echo.HTTPError)
+	GraphGetActorFollowersRequiresAuth() bool
+	HandleGraphGetActorFollows(e echo.Context, input *GraphGetActorFollowsInput) (*vylet.GraphGetActorFollows_Output, *echo.HTTPError)
+	GraphGetActorFollowsRequiresAuth() bool
 }
 
 type Handlers struct {
@@ -40,6 +44,8 @@ func RegisterHandlers(e *echo.Echo, s Server) {
 	e.GET("/xrpc/app.vylet.feed.getActorPosts", h.HandleFeedGetActorPosts, CreateAuthRequiredMiddleware(s.FeedGetActorPostsRequiresAuth()))
 	e.GET("/xrpc/app.vylet.feed.getPosts", h.HandleFeedGetPosts, CreateAuthRequiredMiddleware(s.FeedGetPostsRequiresAuth()))
 	e.GET("/xrpc/app.vylet.feed.getSubjectLikes", h.HandleFeedGetSubjectLikes, CreateAuthRequiredMiddleware(s.FeedGetSubjectLikesRequiresAuth()))
+	e.GET("/xrpc/app.vylet.graph.getActorFollowers", h.HandleGraphGetActorFollowers, CreateAuthRequiredMiddleware(s.GraphGetActorFollowersRequiresAuth()))
+	e.GET("/xrpc/app.vylet.graph.getActorFollows", h.HandleGraphGetActorFollows, CreateAuthRequiredMiddleware(s.GraphGetActorFollowsRequiresAuth()))
 }
 
 func AuthRequiredMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
