@@ -539,6 +539,110 @@ func (x *GetFollowersByActorResponse) GetCursor() string {
 	return ""
 }
 
+type GetFollowForAuthorSubjectRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AuthorDid     string                 `protobuf:"bytes,1,opt,name=author_did,json=authorDid,proto3" json:"author_did,omitempty"`
+	SubjectDid    string                 `protobuf:"bytes,2,opt,name=subject_did,json=subjectDid,proto3" json:"subject_did,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFollowForAuthorSubjectRequest) Reset() {
+	*x = GetFollowForAuthorSubjectRequest{}
+	mi := &file_follow_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFollowForAuthorSubjectRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFollowForAuthorSubjectRequest) ProtoMessage() {}
+
+func (x *GetFollowForAuthorSubjectRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_follow_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFollowForAuthorSubjectRequest.ProtoReflect.Descriptor instead.
+func (*GetFollowForAuthorSubjectRequest) Descriptor() ([]byte, []int) {
+	return file_follow_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetFollowForAuthorSubjectRequest) GetAuthorDid() string {
+	if x != nil {
+		return x.AuthorDid
+	}
+	return ""
+}
+
+func (x *GetFollowForAuthorSubjectRequest) GetSubjectDid() string {
+	if x != nil {
+		return x.SubjectDid
+	}
+	return ""
+}
+
+type GetFollowForAuthorSubjectResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Error         *string                `protobuf:"bytes,1,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	Follow        *Follow                `protobuf:"bytes,2,opt,name=follow,proto3,oneof" json:"follow,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFollowForAuthorSubjectResponse) Reset() {
+	*x = GetFollowForAuthorSubjectResponse{}
+	mi := &file_follow_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFollowForAuthorSubjectResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFollowForAuthorSubjectResponse) ProtoMessage() {}
+
+func (x *GetFollowForAuthorSubjectResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_follow_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFollowForAuthorSubjectResponse.ProtoReflect.Descriptor instead.
+func (*GetFollowForAuthorSubjectResponse) Descriptor() ([]byte, []int) {
+	return file_follow_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetFollowForAuthorSubjectResponse) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+func (x *GetFollowForAuthorSubjectResponse) GetFollow() *Follow {
+	if x != nil {
+		return x.Follow
+	}
+	return nil
+}
+
 var File_follow_proto protoreflect.FileDescriptor
 
 const file_follow_proto_rawDesc = "" +
@@ -588,12 +692,23 @@ const file_follow_proto_rawDesc = "" +
 	"\x05limit\x18\x03 \x01(\x03R\x05limit\x12\x1b\n" +
 	"\x06cursor\x18\x04 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
 	"\x06_errorB\t\n" +
-	"\a_cursor2\x97\x03\n" +
+	"\a_cursor\"r\n" +
+	" GetFollowForAuthorSubjectRequest\x12%\n" +
+	"\n" +
+	"author_did\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\tauthorDid\x12'\n" +
+	"\vsubject_did\x18\x02 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\n" +
+	"subjectDid\"\x87\x01\n" +
+	"!GetFollowForAuthorSubjectResponse\x12\x19\n" +
+	"\x05error\x18\x01 \x01(\tH\x00R\x05error\x88\x01\x01\x122\n" +
+	"\x06follow\x18\x02 \x01(\v2\x15.vyletdatabase.FollowH\x01R\x06follow\x88\x01\x01B\b\n" +
+	"\x06_errorB\t\n" +
+	"\a_follow2\x97\x04\n" +
 	"\rFollowService\x12W\n" +
 	"\fCreateFollow\x12\".vyletdatabase.CreateFollowRequest\x1a#.vyletdatabase.CreateFollowResponse\x12W\n" +
 	"\fDeleteFollow\x12\".vyletdatabase.DeleteFollowRequest\x1a#.vyletdatabase.DeleteFollowResponse\x12f\n" +
 	"\x11GetFollowsByActor\x12'.vyletdatabase.GetFollowsByActorRequest\x1a(.vyletdatabase.GetFollowsByActorResponse\x12l\n" +
-	"\x13GetFollowersByActor\x12).vyletdatabase.GetFollowersByActorRequest\x1a*.vyletdatabase.GetFollowersByActorResponseB\x86\x01\n" +
+	"\x13GetFollowersByActor\x12).vyletdatabase.GetFollowersByActorRequest\x1a*.vyletdatabase.GetFollowersByActorResponse\x12~\n" +
+	"\x19GetFollowForAuthorSubject\x12/.vyletdatabase.GetFollowForAuthorSubjectRequest\x1a0.vyletdatabase.GetFollowForAuthorSubjectResponseB\x86\x01\n" +
 	"\x11com.vyletdatabaseB\vFollowProtoP\x01Z\x10./;vyletdatabase\xa2\x02\x03VXX\xaa\x02\rVyletdatabase\xca\x02\rVyletdatabase\xe2\x02\x19Vyletdatabase\\GPBMetadata\xea\x02\rVyletdatabaseb\x06proto3"
 
 var (
@@ -608,38 +723,43 @@ func file_follow_proto_rawDescGZIP() []byte {
 	return file_follow_proto_rawDescData
 }
 
-var file_follow_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_follow_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_follow_proto_goTypes = []any{
-	(*Follow)(nil),                      // 0: vyletdatabase.Follow
-	(*CreateFollowRequest)(nil),         // 1: vyletdatabase.CreateFollowRequest
-	(*CreateFollowResponse)(nil),        // 2: vyletdatabase.CreateFollowResponse
-	(*DeleteFollowRequest)(nil),         // 3: vyletdatabase.DeleteFollowRequest
-	(*DeleteFollowResponse)(nil),        // 4: vyletdatabase.DeleteFollowResponse
-	(*GetFollowsByActorRequest)(nil),    // 5: vyletdatabase.GetFollowsByActorRequest
-	(*GetFollowsByActorResponse)(nil),   // 6: vyletdatabase.GetFollowsByActorResponse
-	(*GetFollowersByActorRequest)(nil),  // 7: vyletdatabase.GetFollowersByActorRequest
-	(*GetFollowersByActorResponse)(nil), // 8: vyletdatabase.GetFollowersByActorResponse
-	(*timestamppb.Timestamp)(nil),       // 9: google.protobuf.Timestamp
+	(*Follow)(nil),                            // 0: vyletdatabase.Follow
+	(*CreateFollowRequest)(nil),               // 1: vyletdatabase.CreateFollowRequest
+	(*CreateFollowResponse)(nil),              // 2: vyletdatabase.CreateFollowResponse
+	(*DeleteFollowRequest)(nil),               // 3: vyletdatabase.DeleteFollowRequest
+	(*DeleteFollowResponse)(nil),              // 4: vyletdatabase.DeleteFollowResponse
+	(*GetFollowsByActorRequest)(nil),          // 5: vyletdatabase.GetFollowsByActorRequest
+	(*GetFollowsByActorResponse)(nil),         // 6: vyletdatabase.GetFollowsByActorResponse
+	(*GetFollowersByActorRequest)(nil),        // 7: vyletdatabase.GetFollowersByActorRequest
+	(*GetFollowersByActorResponse)(nil),       // 8: vyletdatabase.GetFollowersByActorResponse
+	(*GetFollowForAuthorSubjectRequest)(nil),  // 9: vyletdatabase.GetFollowForAuthorSubjectRequest
+	(*GetFollowForAuthorSubjectResponse)(nil), // 10: vyletdatabase.GetFollowForAuthorSubjectResponse
+	(*timestamppb.Timestamp)(nil),             // 11: google.protobuf.Timestamp
 }
 var file_follow_proto_depIdxs = []int32{
-	9, // 0: vyletdatabase.Follow.created_at:type_name -> google.protobuf.Timestamp
-	9, // 1: vyletdatabase.Follow.indexed_at:type_name -> google.protobuf.Timestamp
-	0, // 2: vyletdatabase.CreateFollowRequest.follow:type_name -> vyletdatabase.Follow
-	0, // 3: vyletdatabase.GetFollowsByActorResponse.follows:type_name -> vyletdatabase.Follow
-	0, // 4: vyletdatabase.GetFollowersByActorResponse.followers:type_name -> vyletdatabase.Follow
-	1, // 5: vyletdatabase.FollowService.CreateFollow:input_type -> vyletdatabase.CreateFollowRequest
-	3, // 6: vyletdatabase.FollowService.DeleteFollow:input_type -> vyletdatabase.DeleteFollowRequest
-	5, // 7: vyletdatabase.FollowService.GetFollowsByActor:input_type -> vyletdatabase.GetFollowsByActorRequest
-	7, // 8: vyletdatabase.FollowService.GetFollowersByActor:input_type -> vyletdatabase.GetFollowersByActorRequest
-	2, // 9: vyletdatabase.FollowService.CreateFollow:output_type -> vyletdatabase.CreateFollowResponse
-	4, // 10: vyletdatabase.FollowService.DeleteFollow:output_type -> vyletdatabase.DeleteFollowResponse
-	6, // 11: vyletdatabase.FollowService.GetFollowsByActor:output_type -> vyletdatabase.GetFollowsByActorResponse
-	8, // 12: vyletdatabase.FollowService.GetFollowersByActor:output_type -> vyletdatabase.GetFollowersByActorResponse
-	9, // [9:13] is the sub-list for method output_type
-	5, // [5:9] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	11, // 0: vyletdatabase.Follow.created_at:type_name -> google.protobuf.Timestamp
+	11, // 1: vyletdatabase.Follow.indexed_at:type_name -> google.protobuf.Timestamp
+	0,  // 2: vyletdatabase.CreateFollowRequest.follow:type_name -> vyletdatabase.Follow
+	0,  // 3: vyletdatabase.GetFollowsByActorResponse.follows:type_name -> vyletdatabase.Follow
+	0,  // 4: vyletdatabase.GetFollowersByActorResponse.followers:type_name -> vyletdatabase.Follow
+	0,  // 5: vyletdatabase.GetFollowForAuthorSubjectResponse.follow:type_name -> vyletdatabase.Follow
+	1,  // 6: vyletdatabase.FollowService.CreateFollow:input_type -> vyletdatabase.CreateFollowRequest
+	3,  // 7: vyletdatabase.FollowService.DeleteFollow:input_type -> vyletdatabase.DeleteFollowRequest
+	5,  // 8: vyletdatabase.FollowService.GetFollowsByActor:input_type -> vyletdatabase.GetFollowsByActorRequest
+	7,  // 9: vyletdatabase.FollowService.GetFollowersByActor:input_type -> vyletdatabase.GetFollowersByActorRequest
+	9,  // 10: vyletdatabase.FollowService.GetFollowForAuthorSubject:input_type -> vyletdatabase.GetFollowForAuthorSubjectRequest
+	2,  // 11: vyletdatabase.FollowService.CreateFollow:output_type -> vyletdatabase.CreateFollowResponse
+	4,  // 12: vyletdatabase.FollowService.DeleteFollow:output_type -> vyletdatabase.DeleteFollowResponse
+	6,  // 13: vyletdatabase.FollowService.GetFollowsByActor:output_type -> vyletdatabase.GetFollowsByActorResponse
+	8,  // 14: vyletdatabase.FollowService.GetFollowersByActor:output_type -> vyletdatabase.GetFollowersByActorResponse
+	10, // 15: vyletdatabase.FollowService.GetFollowForAuthorSubject:output_type -> vyletdatabase.GetFollowForAuthorSubjectResponse
+	11, // [11:16] is the sub-list for method output_type
+	6,  // [6:11] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_follow_proto_init() }
@@ -653,13 +773,14 @@ func file_follow_proto_init() {
 	file_follow_proto_msgTypes[6].OneofWrappers = []any{}
 	file_follow_proto_msgTypes[7].OneofWrappers = []any{}
 	file_follow_proto_msgTypes[8].OneofWrappers = []any{}
+	file_follow_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_follow_proto_rawDesc), len(file_follow_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

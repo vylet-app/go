@@ -13,6 +13,8 @@ service FollowService {
 
   rpc GetFollowsByActor(GetFollowsByActorRequest) returns (GetFollowsByActorResponse);
   rpc GetFollowersByActor(GetFollowersByActorRequest) returns (GetFollowersByActorResponse);
+
+  rpc GetFollowForAuthorSubject(GetFollowForAuthorSubjectRequest) returns (GetFollowForAuthorSubjectResponse);
 }
 
 message Follow {
@@ -76,4 +78,18 @@ message GetFollowersByActorResponse {
   repeated Follow followers = 2;
   int64 limit = 3;
   optional string cursor = 4;
+}
+
+message GetFollowForAuthorSubjectRequest {
+  string author_did = 1 [
+    (buf.validate.field).required = true
+  ];
+  string subject_did = 2 [
+    (buf.validate.field).required = true
+  ];
+}
+
+message GetFollowForAuthorSubjectResponse {
+  optional string error = 1;
+  optional Follow follow = 2;
 }

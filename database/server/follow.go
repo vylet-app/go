@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -19,7 +20,7 @@ func (s *Server) CreateFollow(ctx context.Context, req *vyletdatabase.CreateFoll
 
 	batch := s.cqlSession.NewBatch(gocql.LoggedBatch).WithContext(ctx)
 
-	likeArgs := []any{
+	args := []any{
 		req.Follow.Uri,
 		req.Follow.Cid,
 		req.Follow.SubjectDid,
@@ -28,16 +29,17 @@ func (s *Server) CreateFollow(ctx context.Context, req *vyletdatabase.CreateFoll
 		now,
 	}
 
-	likeQuery := `
+	query := `
 		INSERT INTO %s
 			(uri, cid, subject_did, author_did, created_at, indexed_at)
 		VALUES
 			(?, ?, ?, ?, ?, ?)
 	`
 
-	batch.Query(fmt.Sprintf(likeQuery, "follows_by_subject_did"), likeArgs...)
-	batch.Query(fmt.Sprintf(likeQuery, "follows_by_author_did"), likeArgs...)
-	batch.Query(fmt.Sprintf(likeQuery, "follows_by_uri"), likeArgs...)
+	batch.Query(fmt.Sprintf(query, "follows_by_subject_did"), args...)
+	batch.Query(fmt.Sprintf(query, "follows_by_author_did"), args...)
+	batch.Query(fmt.Sprintf(query, "follows_by_uri"), args...)
+	batch.Query(fmt.Sprintf(query, "follows_by_author_did_subject_did"), args...)
 
 	if err := s.cqlSession.ExecuteBatch(batch); err != nil {
 		logger.Error("failed to create follow", "err", err)
@@ -82,7 +84,7 @@ func (s *Server) DeleteFollow(ctx context.Context, req *vyletdatabase.DeleteFoll
 
 	query := `
 		SELECT created_at, subject_did, author_did
-		FROM follow_by_uri
+		FROM follows_by_uri
 		WHERE uri = ?
 	`
 	if err := s.cqlSession.Query(query, req.Uri).WithContext(ctx).Scan(&createdAt, &subjectDid, &authorDid); err != nil {
@@ -113,12 +115,17 @@ func (s *Server) DeleteFollow(ctx context.Context, req *vyletdatabase.DeleteFoll
 	`, subjectDid, createdAt, req.Uri)
 
 	batch.Query(`
-		DELETE FROM likes_by_author_did
+		DELETE FROM follows_by_author_did
 		WHERE author_did = ? AND created_at = ? AND uri = ?
 	`, authorDid, createdAt, req.Uri)
 
+	batch.Query(`
+		DELETE FROM follows_by_author_did_subject_did
+		WHERE author_did = ? AND subject_did = ?
+	`, authorDid, subjectDid)
+
 	if err := s.cqlSession.ExecuteBatch(batch); err != nil {
-		logger.Error("failed to follow like", "uri", req.Uri, "err", err)
+		logger.Error("failed to delete follow", "uri", req.Uri, "err", err)
 		return &vyletdatabase.DeleteFollowResponse{
 			Error: helpers.ToStringPtr(err.Error()),
 		}, nil
@@ -129,7 +136,7 @@ func (s *Server) DeleteFollow(ctx context.Context, req *vyletdatabase.DeleteFoll
 		SET follows_count = follows_count - 1
 		WHERE did = ?
 	`, authorDid).WithContext(ctx).Exec(); err != nil {
-		logger.Error("failed to increment follows count", "err", err)
+		logger.Error("failed to decrement follows count", "err", err)
 		return &vyletdatabase.DeleteFollowResponse{
 			Error: helpers.ToStringPtr(err.Error()),
 		}, nil
@@ -140,7 +147,7 @@ func (s *Server) DeleteFollow(ctx context.Context, req *vyletdatabase.DeleteFoll
 		SET followers_count = followers_count - 1
 		WHERE did = ?
 	`, subjectDid).WithContext(ctx).Exec(); err != nil {
-		logger.Error("failed to increment followers count", "err", err)
+		logger.Error("failed to decrement followers count", "err", err)
 		return &vyletdatabase.DeleteFollowResponse{
 			Error: helpers.ToStringPtr(err.Error()),
 		}, nil
@@ -225,7 +232,7 @@ func (s *Server) GetFollowsByActor(ctx context.Context, req *vyletdatabase.GetFo
 		follows = append(follows, follow)
 	}
 	if err := iter.Close(); err != nil {
-		logger.Error("failed to iterate likes", "err", err)
+		logger.Error("failed to iterate follows", "err", err)
 		return &vyletdatabase.GetFollowsByActorResponse{
 			Error: helpers.ToStringPtr(err.Error()),
 		}, nil
@@ -234,10 +241,10 @@ func (s *Server) GetFollowsByActor(ctx context.Context, req *vyletdatabase.GetFo
 	var nextCursor *string
 	if len(follows) > int(req.Limit) {
 		follows = follows[:req.Limit]
-		lastLike := follows[len(follows)-1]
+		last := follows[len(follows)-1]
 		cursorStr := fmt.Sprintf("%s|%s",
-			lastLike.CreatedAt.AsTime().Format(time.RFC3339Nano),
-			lastLike.Uri)
+			last.CreatedAt.AsTime().Format(time.RFC3339Nano),
+			last.Uri)
 		nextCursor = &cursorStr
 	}
 
@@ -323,7 +330,7 @@ func (s *Server) GetFollowersByActor(ctx context.Context, req *vyletdatabase.Get
 		follows = append(follows, follow)
 	}
 	if err := iter.Close(); err != nil {
-		logger.Error("failed to iterate likes", "err", err)
+		logger.Error("failed to iterate follows", "err", err)
 		return &vyletdatabase.GetFollowersByActorResponse{
 			Error: helpers.ToStringPtr(err.Error()),
 		}, nil
@@ -332,15 +339,56 @@ func (s *Server) GetFollowersByActor(ctx context.Context, req *vyletdatabase.Get
 	var nextCursor *string
 	if len(follows) > int(req.Limit) {
 		follows = follows[:req.Limit]
-		lastLike := follows[len(follows)-1]
+		last := follows[len(follows)-1]
 		cursorStr := fmt.Sprintf("%s|%s",
-			lastLike.CreatedAt.AsTime().Format(time.RFC3339Nano),
-			lastLike.Uri)
+			last.CreatedAt.AsTime().Format(time.RFC3339Nano),
+			last.Uri)
 		nextCursor = &cursorStr
 	}
 
 	return &vyletdatabase.GetFollowersByActorResponse{
 		Followers: follows,
 		Cursor:    nextCursor,
+	}, nil
+}
+
+func (s *Server) GetFollowForAuthorSubject(ctx context.Context, req *vyletdatabase.GetFollowForAuthorSubjectRequest) (*vyletdatabase.GetFollowForAuthorSubjectResponse, error) {
+	logger := s.logger.With("name", "GetFollowForAuthorSubject", "authorDid", req.AuthorDid, "subjectDid", req.SubjectDid)
+
+	args := []any{req.AuthorDid, req.SubjectDid}
+
+	query := `
+		SELECT uri, cid, subject_did, author_did, created_at, indexed_at
+		FROM follows_by_author_did_subject_did
+		WHERE author_did = ? AND subject_did = ?
+	`
+
+	follow := &vyletdatabase.Follow{}
+	var (
+		createdAt time.Time
+		indexedAt time.Time
+	)
+	if err := s.cqlSession.Query(query, args...).WithContext(ctx).Scan(
+		&follow.Uri,
+		&follow.Cid,
+		&follow.SubjectDid,
+		&follow.AuthorDid,
+		&createdAt,
+		&indexedAt,
+	); err != nil {
+		if errors.Is(err, gocql.ErrNotFound) {
+			return &vyletdatabase.GetFollowForAuthorSubjectResponse{}, nil
+		}
+
+		logger.Error("error finding follow", "err", err)
+		return &vyletdatabase.GetFollowForAuthorSubjectResponse{
+			Error: helpers.ToStringPtr(err.Error()),
+		}, nil
+	}
+	follow.CreatedAt = timestamppb.New(createdAt)
+	follow.IndexedAt = timestamppb.New(indexedAt)
+
+	return &vyletdatabase.GetFollowForAuthorSubjectResponse{
+		Follow: follow,
 	}, nil
 }

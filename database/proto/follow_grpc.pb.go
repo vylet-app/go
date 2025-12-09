@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	FollowService_CreateFollow_FullMethodName        = "/vyletdatabase.FollowService/CreateFollow"
-	FollowService_DeleteFollow_FullMethodName        = "/vyletdatabase.FollowService/DeleteFollow"
-	FollowService_GetFollowsByActor_FullMethodName   = "/vyletdatabase.FollowService/GetFollowsByActor"
-	FollowService_GetFollowersByActor_FullMethodName = "/vyletdatabase.FollowService/GetFollowersByActor"
+	FollowService_CreateFollow_FullMethodName              = "/vyletdatabase.FollowService/CreateFollow"
+	FollowService_DeleteFollow_FullMethodName              = "/vyletdatabase.FollowService/DeleteFollow"
+	FollowService_GetFollowsByActor_FullMethodName         = "/vyletdatabase.FollowService/GetFollowsByActor"
+	FollowService_GetFollowersByActor_FullMethodName       = "/vyletdatabase.FollowService/GetFollowersByActor"
+	FollowService_GetFollowForAuthorSubject_FullMethodName = "/vyletdatabase.FollowService/GetFollowForAuthorSubject"
 )
 
 // FollowServiceClient is the client API for FollowService service.
@@ -33,6 +34,7 @@ type FollowServiceClient interface {
 	DeleteFollow(ctx context.Context, in *DeleteFollowRequest, opts ...grpc.CallOption) (*DeleteFollowResponse, error)
 	GetFollowsByActor(ctx context.Context, in *GetFollowsByActorRequest, opts ...grpc.CallOption) (*GetFollowsByActorResponse, error)
 	GetFollowersByActor(ctx context.Context, in *GetFollowersByActorRequest, opts ...grpc.CallOption) (*GetFollowersByActorResponse, error)
+	GetFollowForAuthorSubject(ctx context.Context, in *GetFollowForAuthorSubjectRequest, opts ...grpc.CallOption) (*GetFollowForAuthorSubjectResponse, error)
 }
 
 type followServiceClient struct {
@@ -83,6 +85,16 @@ func (c *followServiceClient) GetFollowersByActor(ctx context.Context, in *GetFo
 	return out, nil
 }
 
+func (c *followServiceClient) GetFollowForAuthorSubject(ctx context.Context, in *GetFollowForAuthorSubjectRequest, opts ...grpc.CallOption) (*GetFollowForAuthorSubjectResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFollowForAuthorSubjectResponse)
+	err := c.cc.Invoke(ctx, FollowService_GetFollowForAuthorSubject_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FollowServiceServer is the server API for FollowService service.
 // All implementations must embed UnimplementedFollowServiceServer
 // for forward compatibility.
@@ -91,6 +103,7 @@ type FollowServiceServer interface {
 	DeleteFollow(context.Context, *DeleteFollowRequest) (*DeleteFollowResponse, error)
 	GetFollowsByActor(context.Context, *GetFollowsByActorRequest) (*GetFollowsByActorResponse, error)
 	GetFollowersByActor(context.Context, *GetFollowersByActorRequest) (*GetFollowersByActorResponse, error)
+	GetFollowForAuthorSubject(context.Context, *GetFollowForAuthorSubjectRequest) (*GetFollowForAuthorSubjectResponse, error)
 	mustEmbedUnimplementedFollowServiceServer()
 }
 
@@ -112,6 +125,9 @@ func (UnimplementedFollowServiceServer) GetFollowsByActor(context.Context, *GetF
 }
 func (UnimplementedFollowServiceServer) GetFollowersByActor(context.Context, *GetFollowersByActorRequest) (*GetFollowersByActorResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetFollowersByActor not implemented")
+}
+func (UnimplementedFollowServiceServer) GetFollowForAuthorSubject(context.Context, *GetFollowForAuthorSubjectRequest) (*GetFollowForAuthorSubjectResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetFollowForAuthorSubject not implemented")
 }
 func (UnimplementedFollowServiceServer) mustEmbedUnimplementedFollowServiceServer() {}
 func (UnimplementedFollowServiceServer) testEmbeddedByValue()                       {}
@@ -206,6 +222,24 @@ func _FollowService_GetFollowersByActor_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FollowService_GetFollowForAuthorSubject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowForAuthorSubjectRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowServiceServer).GetFollowForAuthorSubject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FollowService_GetFollowForAuthorSubject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowServiceServer).GetFollowForAuthorSubject(ctx, req.(*GetFollowForAuthorSubjectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FollowService_ServiceDesc is the grpc.ServiceDesc for FollowService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,6 +262,10 @@ var FollowService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFollowersByActor",
 			Handler:    _FollowService_GetFollowersByActor_Handler,
+		},
+		{
+			MethodName: "GetFollowForAuthorSubject",
+			Handler:    _FollowService_GetFollowForAuthorSubject_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
