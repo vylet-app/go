@@ -22,6 +22,8 @@ func (s *Server) handleCommit(ctx context.Context, evt *vyletkafka.FirehoseEvent
 		return s.handleFeedPost(ctx, evt)
 	case "app.vylet.feed.like":
 		return s.handleFeedLike(ctx, evt)
+	case "app.vylet.graph.follow":
+		return s.handleGraphFollow(ctx, evt)
 	}
 
 	return nil

@@ -14,6 +14,7 @@ type Client struct {
 	Profile vyletdatabase.ProfileServiceClient
 	Post    vyletdatabase.PostServiceClient
 	Like    vyletdatabase.LikeServiceClient
+	Follow  vyletdatabase.FollowServiceClient
 	BlobRef vyletdatabase.BlobRefServiceClient
 }
 
@@ -36,6 +37,7 @@ func New(args *Args) (*Client, error) {
 	postClient := vyletdatabase.NewPostServiceClient(conn)
 	likeClient := vyletdatabase.NewLikeServiceClient(conn)
 	blobRefClient := vyletdatabase.NewBlobRefServiceClient(conn)
+	followClient := vyletdatabase.NewFollowServiceClient(conn)
 
 	client := Client{
 		client:  conn,
@@ -43,6 +45,7 @@ func New(args *Args) (*Client, error) {
 		Post:    postClient,
 		Like:    likeClient,
 		BlobRef: blobRefClient,
+		Follow:  followClient,
 	}
 
 	return &client, nil
