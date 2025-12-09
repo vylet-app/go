@@ -97,31 +97,31 @@ services:
       retries: 5
 
   database:
-    image: ghcr.io/vylet-app/go/database:main
+    image: ghcr.io/vylet-app/go/database:main-cef5ae4
     container_name: vylet-database
     network_mode: host
     depends_on:
       cassandra:
         condition: service_healthy
     environment:
-      VYLET_DATABASE_LISTEN_ADDR: ":9090"
+      VYLET_DATABASE_LISTEN_ADDR: ":9091"
     command: ["./database", "--cassandra-addrs", "127.0.0.1", "--cassandra-keyspace", "vylet"]
     restart: unless-stopped
 
   api:
-    image: ghcr.io/vylet-app/go/api:main
+    image: ghcr.io/vylet-app/go/api:main-6956838
     container_name: vylet-api
     network_mode: host
     depends_on:
       - database
     environment:
-      VYLET_API_LISTEN_ADDR: ":8080"
-      VYLET_API_DB_HOST: "localhost:9090"
+      VYLET_API_LISTEN_ADDR: ":8085"
+      VYLET_API_DB_HOST: "localhost:9091"
       VYLET_API_CDN_HOST: "https://img.cdn.staging.vylet.app"
     restart: unless-stopped
 
   firehose:
-    image: ghcr.io/vylet-app/go/firehose:main
+    image: ghcr.io/vylet-app/go/firehose:main-3eb83ef
     container_name: vylet-firehose
     network_mode: host
     depends_on:
@@ -132,10 +132,11 @@ services:
       VYLET_FIREHOSE_WEBSOCKET_HOST: "wss://bsky.network"
       VYLET_FIREHOSE_BOOTSTRAP_SERVERS: "localhost:9092,localhost:9093,localhost:9094"
       VYLET_FIREHOSE_OUTPUT_TOPIC: "firehose-events-prod"
+      VYLET_FIREHOSE_DESIRED_COLLECTIONS: "app.vylet.*"
     restart: unless-stopped
 
   indexer:
-    image: ghcr.io/vylet-app/go/indexer:main
+    image: ghcr.io/vylet-app/go/indexer:main-3eb83ef
     container_name: vylet-indexer
     network_mode: host
     depends_on:
@@ -144,10 +145,11 @@ services:
       - kafka3
       - database
     environment:
-      VYLET_INDEXER_DATABASE_HOST: "localhost:9090"
+      VYLET_INDEXER_DATABASE_HOST: "localhost:9091"
       VYLET_BOOTSTRAP_SERVERS: "localhost:9092,localhost:9093,localhost:9094"
       VYLET_INDEXER_INPUT_TOPIC: "firehose-events-prod"
       VYLET_INDEXER_CONSUMER_GROUP: "vylet-indexer-staging"
+      METRICS_LISTEN_ADDRESS: ":6104"
     restart: unless-stopped
 
   cdn:
@@ -160,7 +162,7 @@ services:
       - kafka3
       - database
     environment:
-      VYLET_CDN_DATABASE_HOST: "localhost:9090"
+      VYLET_CDN_DATABASE_HOST: "localhost:9091"
       VYLET_BOOTSTRAP_SERVERS: "localhost:9092,localhost:9093,localhost:9094"
       VYLET_CDN_INPUT_TOPIC: "firehose-events-prod"
       VYLET_CDN_CONSUMER_GROUP: "vylet-cdn-staging"
@@ -170,14 +172,13 @@ services:
     image: darthsim/imgproxy:latest
     container_name: imgproxy
     network_mode: host
-    depends_on:
-      - api
     environment:
       IMGPROXY_BIND: ":9525"
       IMGPROXY_ONLY_PRESETS: "true"
-      IMGPROXY_BASE_URL: "http://localhost:9525"
+      IMGPROXY_BASE_URL: "http://localhost:8085/xrpc/app.vylet.media.getBlob/"
       IMGPROXY_USE_ETAG: "true"
       IMGPROXY_PRESETS: "fullsize=resizing_type:fit/width:2000/height:2000/format:jpeg,thumb=resizing_type:fit/width:200/height:200/format:jpeg"
+      IMGPROXY_ALLOW_LOOPBACK_SOURCE_ADDRESSES: "true"
     restart: unless-stopped
 
 volumes:
