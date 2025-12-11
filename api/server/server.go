@@ -153,6 +153,9 @@ func (s *Server) registerHandlers() {
 
 	// app.vylet.media
 	s.echo.GET("/xrpc/app.vylet.media.getBlob/:did/:cid", s.handleGetBlob)
+
+	// did doc
+	s.echo.GET("/.well-known/did.json", s.handleDidJson)
 }
 
 func (s *Server) errorHandler(err error, c echo.Context) {
