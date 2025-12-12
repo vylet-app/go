@@ -392,3 +392,48 @@ func (s *Server) GetFollowForAuthorSubject(ctx context.Context, req *vyletdataba
 		Follow: follow,
 	}, nil
 }
+
+func (s *Server) GetFollowCounts(ctx context.Context, req *vyletdatabase.GetFollowCountsRequest) (*vyletdatabase.GetFollowCountsResponse, error) {
+	logger := s.logger.With("name", "GetFollowCountsRequest", "dids", req.Dids)
+
+	allCounts := make(map[string]*vyletdatabase.FollowCounts)
+
+	iter := s.cqlSession.Query(
+		`SELECT
+			did,
+			follows_count,
+			followers_count
+		FROM
+			follow_counts
+		WHERE
+			did IN ?
+		`,
+		req.Dids,
+	).WithContext(ctx).Iter()
+
+	for {
+		var did string
+		counts := &vyletdatabase.FollowCounts{}
+
+		if !iter.Scan(
+			&did,
+			&counts.Following,
+			&counts.Followers,
+		) {
+			break
+		}
+
+		allCounts[did] = counts
+	}
+
+	if err := iter.Close(); err != nil {
+		logger.Error("error getting follow counts", "err", err)
+		return &vyletdatabase.GetFollowCountsResponse{
+			Error: helpers.ToStringPtr(err.Error()),
+		}, nil
+	}
+
+	return &vyletdatabase.GetFollowCountsResponse{
+		Counts: allCounts,
+	}, nil
+}

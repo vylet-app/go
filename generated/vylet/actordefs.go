@@ -10,16 +10,19 @@ import (
 
 // ActorDefs_ProfileView is a "profileView" in the app.vylet.actor.defs schema.
 type ActorDefs_ProfileView struct {
-	Avatar      *string                       `json:"avatar,omitempty" cborgen:"avatar,omitempty"`
-	CreatedAt   string                        `json:"createdAt" cborgen:"createdAt"`
-	Description *string                       `json:"description,omitempty" cborgen:"description,omitempty"`
-	Did         string                        `json:"did" cborgen:"did"`
-	DisplayName *string                       `json:"displayName,omitempty" cborgen:"displayName,omitempty"`
-	Handle      string                        `json:"handle" cborgen:"handle"`
-	IndexedAt   string                        `json:"indexedAt" cborgen:"indexedAt"`
-	Labels      []*comatproto.LabelDefs_Label `json:"labels,omitempty" cborgen:"labels,omitempty"`
-	Pronouns    *string                       `json:"pronouns,omitempty" cborgen:"pronouns,omitempty"`
-	Viewer      *ActorDefs_ViewerState        `json:"viewer,omitempty" cborgen:"viewer,omitempty"`
+	Avatar         *string                       `json:"avatar,omitempty" cborgen:"avatar,omitempty"`
+	CreatedAt      string                        `json:"createdAt" cborgen:"createdAt"`
+	Description    *string                       `json:"description,omitempty" cborgen:"description,omitempty"`
+	Did            string                        `json:"did" cborgen:"did"`
+	DisplayName    *string                       `json:"displayName,omitempty" cborgen:"displayName,omitempty"`
+	FollowersCount int64                         `json:"followersCount" cborgen:"followersCount"`
+	FollowingCount int64                         `json:"followingCount" cborgen:"followingCount"`
+	Handle         string                        `json:"handle" cborgen:"handle"`
+	IndexedAt      string                        `json:"indexedAt" cborgen:"indexedAt"`
+	Labels         []*comatproto.LabelDefs_Label `json:"labels,omitempty" cborgen:"labels,omitempty"`
+	PostCount      int64                         `json:"postCount" cborgen:"postCount"`
+	Pronouns       *string                       `json:"pronouns,omitempty" cborgen:"pronouns,omitempty"`
+	Viewer         *ActorDefs_ViewerState        `json:"viewer,omitempty" cborgen:"viewer,omitempty"`
 }
 
 // ActorDefs_ProfileViewBasic is a "profileViewBasic" in the app.vylet.actor.defs schema.

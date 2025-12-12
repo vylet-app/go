@@ -1,11 +1,11 @@
 syntax = "proto3";
 
 package vyletdatabase;
-option go_package = "./;vyletdatabase";
 
 import "buf/validate/validate.proto";
-
 import "google/protobuf/timestamp.proto";
+
+option go_package = "./;vyletdatabase";
 
 service ProfileService {
   rpc CreateProfile(CreateProfileRequest) returns (CreateProfileResponse);
@@ -14,18 +14,21 @@ service ProfileService {
 
   rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
   rpc GetProfiles(GetProfilesRequest) returns (GetProfilesResponse);
+  rpc GetProfileCounts(GetProfileCountsRequest) returns (GetProfileCountsResponse);
 }
 
 message Profile {
-  string did = 1 [
-    (buf.validate.field).required = true
-  ];
+  string did = 1 [(buf.validate.field).required = true];
   optional string display_name = 2;
   optional string description = 3;
   optional string pronouns = 4;
   optional string avatar = 5;
   google.protobuf.Timestamp created_at = 6;
   google.protobuf.Timestamp indexed_at = 7;
+}
+
+message ProfileCounts {
+  int64 posts = 1;
 }
 
 message CreateProfileRequest {
@@ -37,9 +40,7 @@ message CreateProfileResponse {
 }
 
 message DeleteProfileRequest {
-  string did = 1 [
-    (buf.validate.field).required = true
-  ];
+  string did = 1 [(buf.validate.field).required = true];
 }
 
 message DeleteProfileResponse {
@@ -47,9 +48,7 @@ message DeleteProfileResponse {
 }
 
 message GetProfileRequest {
-  string did = 1 [
-    (buf.validate.field).required = true
-  ];
+  string did = 1 [(buf.validate.field).required = true];
 }
 
 message GetProfileResponse {
@@ -58,12 +57,19 @@ message GetProfileResponse {
 }
 
 message GetProfilesRequest {
-  repeated string dids = 1 [
-    (buf.validate.field).required = true
-  ];
+  repeated string dids = 1 [(buf.validate.field).required = true];
 }
 
 message GetProfilesResponse {
   optional string error = 1;
   map<string, Profile> profiles = 2;
+}
+
+message GetProfileCountsRequest {
+  repeated string dids = 1 [(buf.validate.field).required = true];
+}
+
+message GetProfileCountsResponse {
+  optional string error = 1;
+  map<string, ProfileCounts> counts = 2;
 }

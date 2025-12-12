@@ -188,3 +188,45 @@ func (s *Server) GetProfiles(ctx context.Context, req *vyletdatabase.GetProfiles
 
 	return resp, nil
 }
+
+func (s *Server) GetProfileCounts(ctx context.Context, req *vyletdatabase.GetProfileCountsRequest) (*vyletdatabase.GetProfileCountsResponse, error) {
+	logger := s.logger.With("name", "GetProfileCounts")
+
+	allCounts := make(map[string]*vyletdatabase.ProfileCounts)
+
+	iter := s.cqlSession.Query(
+		`SELECT
+			did,
+			post_count
+		FROM
+			profile_counts
+		WHERE
+			did IN ?
+		`,
+		req.Dids,
+	).WithContext(ctx).Iter()
+
+	for {
+		var did string
+		counts := &vyletdatabase.ProfileCounts{}
+		if !iter.Scan(
+			&did,
+			&counts.Posts,
+		) {
+			break
+		}
+
+		allCounts[did] = counts
+	}
+
+	if err := iter.Close(); err != nil {
+		logger.Error("failed to get profile counts", "dids", req.Dids, "err", err)
+		return &vyletdatabase.GetProfileCountsResponse{
+			Error: helpers.ToStringPtr(err.Error()),
+		}, nil
+	}
+
+	return &vyletdatabase.GetProfileCountsResponse{
+		Counts: allCounts,
+	}, nil
+}

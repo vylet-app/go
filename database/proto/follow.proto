@@ -1,11 +1,11 @@
 syntax = "proto3";
 
 package vyletdatabase;
-option go_package = "./;vyletdatabase";
 
 import "buf/validate/validate.proto";
-
 import "google/protobuf/timestamp.proto";
+
+option go_package = "./;vyletdatabase";
 
 service FollowService {
   rpc CreateFollow(CreateFollowRequest) returns (CreateFollowResponse);
@@ -15,21 +15,22 @@ service FollowService {
   rpc GetFollowersByActor(GetFollowersByActorRequest) returns (GetFollowersByActorResponse);
 
   rpc GetFollowForAuthorSubject(GetFollowForAuthorSubjectRequest) returns (GetFollowForAuthorSubjectResponse);
+
+  rpc GetFollowCounts(GetFollowCountsRequest) returns (GetFollowCountsResponse);
 }
 
 message Follow {
-  string uri = 1 [
-    (buf.validate.field).required = true
-  ];
-  string cid = 2 [
-    (buf.validate.field).required = true
-  ];
-  string subject_did = 3 [
-    (buf.validate.field).required = true
-  ];
+  string uri = 1 [(buf.validate.field).required = true];
+  string cid = 2 [(buf.validate.field).required = true];
+  string subject_did = 3 [(buf.validate.field).required = true];
   string author_did = 5;
   google.protobuf.Timestamp created_at = 6;
   google.protobuf.Timestamp indexed_at = 7;
+}
+
+message FollowCounts {
+  int64 following = 1;
+  int64 followers = 2;
 }
 
 message CreateFollowRequest {
@@ -41,9 +42,7 @@ message CreateFollowResponse {
 }
 
 message DeleteFollowRequest {
-  string uri = 1 [
-    (buf.validate.field).required = true
-  ];
+  string uri = 1 [(buf.validate.field).required = true];
 }
 
 message DeleteFollowResponse {
@@ -51,9 +50,7 @@ message DeleteFollowResponse {
 }
 
 message GetFollowsByActorRequest {
-  string did = 1 [
-    (buf.validate.field).required = true
-  ];
+  string did = 1 [(buf.validate.field).required = true];
   int64 limit = 2;
   optional string cursor = 3;
 }
@@ -66,9 +63,7 @@ message GetFollowsByActorResponse {
 }
 
 message GetFollowersByActorRequest {
-  string did = 1 [
-    (buf.validate.field).required = true
-  ];
+  string did = 1 [(buf.validate.field).required = true];
   int64 limit = 2;
   optional string cursor = 3;
 }
@@ -81,15 +76,20 @@ message GetFollowersByActorResponse {
 }
 
 message GetFollowForAuthorSubjectRequest {
-  string author_did = 1 [
-    (buf.validate.field).required = true
-  ];
-  string subject_did = 2 [
-    (buf.validate.field).required = true
-  ];
+  string author_did = 1 [(buf.validate.field).required = true];
+  string subject_did = 2 [(buf.validate.field).required = true];
 }
 
 message GetFollowForAuthorSubjectResponse {
   optional string error = 1;
   optional Follow follow = 2;
+}
+
+message GetFollowCountsRequest {
+  repeated string dids = 1 [(buf.validate.field).required = true];
+}
+
+message GetFollowCountsResponse {
+  optional string error = 1;
+  map<string, FollowCounts> counts = 2;
 }
