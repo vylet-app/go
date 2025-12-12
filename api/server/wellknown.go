@@ -13,10 +13,12 @@ func (s *Server) handleDidJson(e echo.Context) error {
 			"https://w3id.org/security/multikey/v1",
 		},
 		"id": "did:web:staging.vylet.app",
-		"service": map[string]string{
-			"id":              "#vylet_appview",
-			"type":            "VyletAppView",
-			"serviceEndpoint": "https://staging.vylet.app",
+		"service": []map[string]string{
+			{
+				"id":              "#vylet_appview",
+				"type":            "VyletAppView",
+				"serviceEndpoint": "https://staging.vylet.app",
+			},
 		},
 	})
 }
